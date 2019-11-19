@@ -1,0 +1,140 @@
+version: 2.1
+executors:
+  main:
+    docker:
+      - image: 'circleci/node:10'
+
+jobs:
+  install_dependencies:
+    executor: main
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - node-v1-{{ .Branch }}-
+            - node-v1-
+      - run: npm ci
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+  build:
+    executor: main
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - run:
+          name: Building src
+          command: npm run build
+      - persist_to_workspace:
+          root: build
+          paths:
+            - "*"
+  deploy:
+    executor: main
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - run:
+          name: Publish to NPM
+          command: ./scripts/publish.sh
+  release:
+    executor: main
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "3c:17:52:8b:7b:72:62:10:86:bf:ec:ab:fc:63:7b:0e"
+      - run:
+          name: Setup git config
+          command: |
+                git config user.email "$GIT_EMAIL"
+                git config user.name "$GIT_USERNAME"
+      - run:
+          name: Tag release
+          command: ./scripts/tag_release.sh
+  test:
+    executor: main
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - run:
+          name: Linting javascript
+          command: npm run lint
+  build_demo:
+    executor: main
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - attach_workspace:
+          at: build
+      - run:
+          name: Building demo
+          command: npm run build:demo
+      - persist_to_workspace:
+          root: public/build
+          paths:
+            - "*"
+  deploy_demo:
+    executor: main
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - attach_workspace:
+          at: public/build
+      - add_ssh_keys:
+          fingerprints:
+            - "3c:17:52:8b:7b:72:62:10:86:bf:ec:ab:fc:63:7b:0e"
+      - run:
+          name: Setup git config
+          command: |
+                git config user.email "$GIT_EMAIL"
+                git config user.name "$GIT_USERNAME"
+      - run:
+          name: Deploying to GitHub pages
+          command: npm run deploy:demo
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - install_dependencies
+      - test:
+          requires:
+            - install_dependencies
+      - build:
+          requires:
+            - install_dependencies
+      - build_demo:
+          requires:
+            - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - release:
+          requires:
+            - deploy
+          filters:
+            branches:
+              only: master
+      - deploy_demo:
+          requires:
+            - build_demo
+          filters:
+            branches:
+              only: master
+  
