@@ -29,6 +29,7 @@ class Config {
         ambientLightColor: 0xffffff,
         ambientLightIntensity: 1.0,
         sphereRadius: 2,
+        globeRadius: 2.2,
         maxWidth: 500,
         maxHeight: 500
       },
@@ -39,7 +40,7 @@ class Config {
       },
       camera: {
         fov: 60,
-        initPos: { x: 0, y: 0, z: 10 },
+        initPos: { x: 0, y: 0, z: 7 },
         near: 0.1,
         far: 20,
         enableZoom: true // enable camera zoom on mousewheel/pinch gesture

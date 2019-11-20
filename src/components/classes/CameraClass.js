@@ -12,9 +12,9 @@ class CameraClass extends BaseClass {
       this.config.camera.near,
       this.config.camera.far
     )
-    this.camera.position.x = 0
-    this.camera.position.y = 0
-    this.camera.position.z = 5
+    this.camera.position.x = this.config.camera.initPos.x
+    this.camera.position.y = this.config.camera.initPos.y
+    this.camera.position.z = this.config.camera.initPos.z
     this.camera.updateMatrixWorld()
 
     super.init()

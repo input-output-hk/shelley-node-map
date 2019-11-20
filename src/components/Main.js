@@ -3,7 +3,7 @@
 ------------------------------------------ */
 import React, { Component } from 'react'
 import {
-  Clock
+  Clock, Path
 } from 'three'
 import EventEmitter from 'eventemitter3'
 import mixin from 'mixin'
@@ -32,6 +32,7 @@ import PointLightClass from './classes/PointLightClass'
 import ParticlesClass from './classes/ParticlesClass'
 import GlobeClass from './classes/GlobeClass'
 import MarkersClass from './classes/MarkersClass'
+import PathsClass from './classes/PathsClass'
 
 /* ------------------------------------------
 Styles
@@ -73,6 +74,7 @@ class Main extends mixin(EventEmitter, Component) {
     AmbientLightClass.getInstance().init()
     PointLightClass.getInstance().init()
     MarkersClass.getInstance().init()
+    PathsClass.getInstance().init()
 
     this.buildScene()
     this.addEvents()
@@ -81,9 +83,11 @@ class Main extends mixin(EventEmitter, Component) {
 
   buildScene () {
     IcosaSceneClass.getInstance().scene.add(IcosahedronClass.getInstance().mesh)
+    IcosaSceneClass.getInstance().scene.add(IcosahedronClass.getInstance().mesh2)
     IcosaSceneClass.getInstance().scene.add(AmbientLightClass.getInstance().light)
     IcosaSceneClass.getInstance().scene.add(PointLightClass.getInstance().light)
     IcosaSceneClass.getInstance().scene.add(MarkersClass.getInstance().mesh)
+    IcosaSceneClass.getInstance().scene.add(PathsClass.getInstance().mesh)
 
     GlobeSceneClass.getInstance().scene.add(GlobeClass.getInstance().mesh)
   }
@@ -102,6 +106,7 @@ class Main extends mixin(EventEmitter, Component) {
     TouchClass.getInstance().renderFrame({ dt: dt })
     ControlsClass.getInstance().renderFrame({ dt: dt })
     MarkersClass.getInstance().renderFrame({ dt: dt })
+    PathsClass.getInstance().renderFrame({ dt: dt })
     ParticlesClass.getInstance().renderFrame({ dt: dt })
 
     FBOClass.getInstance().renderFrame()
