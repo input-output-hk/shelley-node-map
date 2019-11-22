@@ -12,11 +12,9 @@ import {
   ShaderMaterial,
   Scene,
   PerspectiveCamera,
-  PointLight,
-  AmbientLight,
-  VideoTexture,
-  MeshBasicMaterial,
-  DoubleSide
+  Vector2,
+  OrthographicCamera
+
 } from 'three'
 
 /* ------------------------------------------
@@ -27,26 +25,30 @@ import GlobeSceneClass from './GlobeSceneClass'
 import IcosaSceneClass from './IcosaSceneClass'
 import RendererClass from './RendererClass'
 import CameraClass from './CameraClass'
-import QuadCameraClass from './QuadCameraClass'
+
 import ParticlesClass from './ParticlesClass'
 
 /* ------------------------------------------
 Shaders
 ------------------------------------------ */
 import PassThroughVert from '../../shaders/passThrough.vert'
+import MousePosFrag from '../../shaders/mousePos.frag'
 import EdgeDetectFrag from '../../shaders/edgeDetect.frag'
 import BlurFrag from '../../shaders/blur.frag'
+import MouseClass from './MouseClass'
 
 class FBOClass extends BaseClass {
   init ({
     width,
     height
   } = {}) {
+    this.frame = 0
     this.width = width
     this.height = height
 
     this.initRenderTargets()
     this.initMaterial()
+    this.initMousePos()
     this.addMesh()
   }
 
@@ -116,6 +118,48 @@ class FBOClass extends BaseClass {
     this.particleCamera.updateMatrixWorld()
   }
 
+  initMousePos () {
+    this.mousePosRT1 = new WebGLRenderTarget(
+      this.width,
+      this.height,
+      {
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        format: RGBAFormat,
+        type: this.config.floatType,
+        depthWrite: false,
+        depthBuffer: false,
+        stencilBuffer: false
+      })
+
+    this.mousePosRT2 = this.mousePosRT1.clone()
+
+    this.mousePosScene = new Scene()
+    this.mousePosMaterial = new ShaderMaterial({
+      uniforms: {
+        uMousePosTexture: {
+          type: 't',
+          value: null
+        },
+        uMousePos: {
+          type: 'v2',
+          value: new Vector2(0, 0)
+        }
+      },
+      vertexShader: PassThroughVert,
+      fragmentShader: MousePosFrag
+    })
+    const mesh = new Mesh(new PlaneBufferGeometry(2, 2), this.mousePosMaterial)
+    mesh.frustumCulled = false
+    this.mousePosScene.add(mesh)
+
+    this.mousePosCamera = new OrthographicCamera()
+    this.mousePosCamera.position.z = 1
+    this.mousePosCamera.updateMatrixWorld()
+
+    this.mousePosTexture = null
+  }
+
   resize (width, height) {
     this.RTGlobe.setSize(width, height)
     this.RTParticles.setSize(width, height)
@@ -123,6 +167,8 @@ class FBOClass extends BaseClass {
   }
 
   renderFrame () {
+    this.frame++
+
     // standard scene
     RendererClass.getInstance().renderer.setRenderTarget(this.RTGlobe)
     RendererClass.getInstance().renderer.autoClear = false
@@ -130,7 +176,6 @@ class FBOClass extends BaseClass {
 
     // particles scene
     ParticlesClass.getInstance().mesh.material.uniforms.uTexture.value = this.RTGlobe.texture
-    // RendererClass.getInstance().renderer.setRenderTarget(this.RTParticles)
     RendererClass.getInstance().renderer.setRenderTarget(null)
     RendererClass.getInstance().renderer.autoClear = false
     RendererClass.getInstance().renderer.render(IcosaSceneClass.getInstance().scene, CameraClass.getInstance().camera)
@@ -139,17 +184,25 @@ class FBOClass extends BaseClass {
     RendererClass.getInstance().renderer.autoClear = false
     RendererClass.getInstance().renderer.render(this.particleScene, this.particleCamera)
 
-    // // icosa scene
-    // if (this.config.postProcessing.effectDownscaleDivisor <= 1) {
-    //   this.mesh.material.transparent = true
-    //   this.mesh.material.blending = THREE.CustomBlending
-    //   this.mesh.material.blendSrc = THREE.OneFactor
-    //   this.mesh.material.blendDst = THREE.OneFactor
-    //   this.mesh.material.blendEquation = THREE.AddEquation
-    //   this.mesh.material.blendSrcAlpha = THREE.OneFactor
-    //   this.mesh.material.blendDstAlpha = THREE.ZeroFactor
-    //   this.mesh.material.blendEquationAlpha = THREE.AddEquation
-    // }
+    // mouse position
+    this.mousePosMaterial.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
+
+    let inputPositionRenderTarget = this.mousePosRT1
+    this.outputPositionRenderTarget = this.mousePosRT2
+    if (this.frame % 2 === 0) {
+      inputPositionRenderTarget = this.mousePosRT2
+      this.outputPositionRenderTarget = this.mousePosRT1
+    }
+
+    this.mousePosMaterial.uniforms.uMousePosTexture.value = inputPositionRenderTarget.texture
+
+    RendererClass.getInstance().renderer.setRenderTarget(this.outputPositionRenderTarget)
+    RendererClass.getInstance().renderer.render(this.mousePosScene, this.mousePosCamera)
+
+    this.mousePosTexture = this.outputPositionRenderTarget.texture
+
+    // RendererClass.getInstance().renderer.setRenderTarget(null)
+    // RendererClass.getInstance().renderer.render(this.mousePosScene, this.mousePosCamera)
 
     super.renderFrame()
   }

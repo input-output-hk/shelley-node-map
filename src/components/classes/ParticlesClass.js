@@ -27,6 +27,7 @@ import PassThroughFrag from '../../shaders/passThrough.frag'
 
 import TextureHelper from '../../helpers/TextureHelper'
 import RendererClass from './RendererClass'
+import FBOClass from './FBOClass'
 
 class ParticlesClass extends BaseClass {
   init (numPoints = 100) {
@@ -150,8 +151,8 @@ class ParticlesClass extends BaseClass {
     const positionData = this.textureHelper.createPositionTexture()
     this.defaultPositionTexture = positionData.positionTexture
 
-    this.passThroughTexture(positionData.positionTexture, this.positionRenderTarget1)
-    this.passThroughTexture(this.positionRenderTarget1.texture, this.positionRenderTarget2)
+    // this.passThroughTexture(positionData.positionTexture, this.positionRenderTarget1)
+    // this.passThroughTexture(this.positionRenderTarget1.texture, this.positionRenderTarget2)
 
     this.positionMaterial.uniforms.defaultPositionTexture.value = this.defaultPositionTexture
     this.material.uniforms.defaultPositionTexture.value = this.defaultPositionTexture
@@ -208,15 +209,12 @@ class ParticlesClass extends BaseClass {
     this.positionMaterial.uniforms.uFrame.value = this.frame
 
     this.material.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
+    this.material.uniforms.uMousePosTexture.value = FBOClass.getInstance().mousePosTexture
 
     this.updatePositions()
 
     if (Math.abs(MouseClass.getInstance().mouseDelta.x) + Math.abs(MouseClass.getInstance().mouseDelta.y) > 1.0) {
       this.mouseMoved = 1.0
-      this.movedCount++
-      if (this.movedCount > 500) {
-        this.mouseMoved = 0
-      }
     }
 
     if (this.mouseMoved > 0) {
@@ -224,7 +222,6 @@ class ParticlesClass extends BaseClass {
     }
     if (this.mouseMoved < 0) {
       this.mouseMoved = 0
-      this.movedCount = 0
     }
 
     this.positionMaterial.uniforms.uNoiseMix.value = this.mouseMoved
@@ -241,6 +238,7 @@ class ParticlesMaterial extends ShaderMaterial {
     this.uniforms = ShaderLib.standard.uniforms
 
     this.uniforms.uTexture = { value: null }
+    this.uniforms.uMousePosTexture = { value: null }
     this.uniforms.uTime = { value: 0.0 }
     this.uniforms.positionTexture = {
       type: 't',

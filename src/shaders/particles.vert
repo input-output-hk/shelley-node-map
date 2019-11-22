@@ -1,5 +1,6 @@
 uniform vec2 uTextureSize;
 uniform sampler2D uTexture;
+uniform sampler2D uMousePosTexture;
 uniform sampler2D positionTexture;
 uniform sampler2D defaultPositionTexture;
 uniform vec2 uMousePos;
@@ -21,6 +22,7 @@ void main() {
 
 	vec4 color = texture2D(uTexture, puv);
 
+
 	if (color.r + color.g + color.b > 0.01) {
 
 		#include <begin_vertex>
@@ -30,10 +32,13 @@ void main() {
 
 		transformed.xyz = defaultPosition.xyz;
 
-		float puvToMouse = distance(uMousePos, puv);
-		if (puvToMouse < 0.5) {
-			transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(  pow(1.0-puvToMouse*2.0, 10.0) , 0.0, 1.0 ));
-		}
+		vec4 mousePosTexture = texture2D(uMousePosTexture, puv);
+		transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(mousePosTexture.r, 0.0, 1.0 ) );
+
+		// float puvToMouse = distance(uMousePos, puv);
+		// if (puvToMouse < 0.5) {
+		// 	transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(  pow(1.0-puvToMouse*2.0, 10.0) , 0.0, 1.0 ));
+		// }
 
 		#include <project_vertex>
 
