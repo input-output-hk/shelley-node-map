@@ -15,7 +15,7 @@ void main() {
         grey = pow(1.0-puvToMouse * 1.0, 125.0) ;
     }
 
-    float decay = 0.97;
+    float decay = 0.98;
     vec4 color = vec4(grey, grey, grey, 1.0);
     color += mousePosTexture * decay;
 

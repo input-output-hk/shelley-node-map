@@ -15,7 +15,7 @@ void main() {
   float kernelSize = 0.03;
   vec3 scaledPosition = vec3(currentPosition.x, currentPosition.y, currentPosition.z+(sin(uFrame))) * kernelSize;
 
-  float noiseSpeed = 0.5;
+  float noiseSpeed = 0.4;
 
   currentPosition.xyz = currentPosition.xyz + (curlNoise(scaledPosition) ) * noiseSpeed;
 

@@ -13,7 +13,7 @@ import BaseClass from './BaseClass'
 // textures
 import specMap from '../../assets/earthspec1k.jpg'
 // import map from '../../assets/earthmap1k.jpg'
-import map from '../../assets/globe.jpg'
+import map from '../../assets/globeBW.jpg'
 import bumpMap from '../../assets/earthbump1k.jpg'
 
 class GlobeClass extends BaseClass {

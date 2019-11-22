@@ -25,11 +25,11 @@ class MarkersClass extends BaseClass {
     this.instanceTotal = coords.length
 
     this.material = new MarkersMaterial({
-      color: new Color(0xcccccc),
+      color: new Color(0x888888),
       flatShading: true
     })
 
-    const tubeGeo = new CylinderGeometry(0.0, 0.006, 0.08, 6)
+    const tubeGeo = new CylinderGeometry(0.0, 0.006, 0.06, 6)
     const tubeBufferGeo = new BufferGeometry().fromGeometry(tubeGeo)
     this.geometry = new InstancedBufferGeometry().copy(tubeBufferGeo)
     this.geometry.rotateX(Math.PI / 2)

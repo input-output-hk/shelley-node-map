@@ -29,7 +29,7 @@ class Config {
         ambientLightColor: 0xffffff,
         ambientLightIntensity: 1.0,
         sphereRadius: 2,
-        globeRadius: 2.2,
+        globeRadius: 2.1,
         maxWidth: 500,
         maxHeight: 500,
         particleLifeMax: 1000

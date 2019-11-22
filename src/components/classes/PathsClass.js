@@ -53,14 +53,14 @@ class PathsClass extends BaseClass {
   init () {
     this.material = new MeshBasicMaterial({
       blending: AdditiveBlending,
-      opacity: 0.4,
+      opacity: 0.3,
       transparent: true,
-      color: new Color(0x770236)
+      color: new Color(0x003a62)
     })
 
     this.mesh = new Mesh()
 
-    const lineCount = 500
+    const lineCount = 700
 
     this.counters = []
 
