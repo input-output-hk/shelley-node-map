@@ -17,12 +17,14 @@ class MouseClass extends BaseClass {
     this.smoothedMousePos = new Vector2()
     this.normalizedMousePos = new Vector2()
     this.prevNormalizedMousePos = new Vector2()
+
+    this.normalizedDir = new Vector2()
     // super.init()
   }
 
   onMouseMove (e) {
     this.prevNormalizedMousePos.x = this.normalizedMousePos.x
-    this.prevNormalizedMousePos.y = this.normalizedMousePos.z
+    this.prevNormalizedMousePos.y = this.normalizedMousePos.y
 
     this.prevMousePos.x = this.mousePos.x
     this.prevMousePos.y = this.mousePos.y
@@ -30,7 +32,8 @@ class MouseClass extends BaseClass {
     this.mousePos.x = e.clientX - RendererClass.getInstance().renderer.domElement.offsetLeft
     this.mousePos.y = e.clientY - RendererClass.getInstance().renderer.domElement.offsetTop
 
-    this.mouseDelta = new Vector2(this.mousePos.x, this.mousePos.y).sub(this.prevMousePos)
+    this.mouseDelta = this.mousePos.clone().sub(this.prevMousePos)
+    console.log(this.mouseDelta)
 
     this.movement.x = e.movementX
     this.movement.y = e.movementY
@@ -40,6 +43,8 @@ class MouseClass extends BaseClass {
 
     this.normalizedMousePos.x = x / RendererClass.getInstance().renderer.domElement.width
     this.normalizedMousePos.y = 1 - y / RendererClass.getInstance().renderer.domElement.height
+
+    this.normalizedDir = (this.prevNormalizedMousePos.clone().sub(this.normalizedMousePos))
 
     super.onMouseMove()
   }

@@ -5,6 +5,7 @@ uniform sampler2D positionTexture;
 uniform sampler2D defaultPositionTexture;
 uniform vec2 uMousePos;
 uniform vec2 uPrevMousePos;
+uniform float uNoiseMix;
 
 attribute vec3 offset;
 attribute vec3 tPosition;
@@ -33,7 +34,16 @@ void main() {
 		transformed.xyz = defaultPosition.xyz;
 
 		vec4 mousePosTexture = texture2D(uMousePosTexture, puv);
+
+		vec2 dir = uMousePos - uPrevMousePos;
+
+
 		transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(mousePosTexture.r, 0.0, 1.0 ) );
+
+		float puvToMouse = distance(uMousePos, puv);
+		if (puvToMouse < 0.5) {
+		 	transformed.xy += ( clamp(dir * 25.0, 0.0, 0.1) * clamp(  pow(1.0-puvToMouse * 2.0, 20.0) , 0.0, 1.0 ) ) * (uNoiseMix*0.5);
+		}
 
 		// float puvToMouse = distance(uMousePos, puv);
 		// if (puvToMouse < 0.5) {

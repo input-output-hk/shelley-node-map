@@ -144,6 +144,14 @@ class FBOClass extends BaseClass {
         uMousePos: {
           type: 'v2',
           value: new Vector2(0, 0)
+        },
+        uPrevMousePos: {
+          type: 'v2',
+          value: new Vector2(0, 0)
+        },
+        uDir: {
+          type: 'v2',
+          value: new Vector2(0, 0)
         }
       },
       vertexShader: PassThroughVert,
@@ -186,6 +194,8 @@ class FBOClass extends BaseClass {
 
     // mouse position
     this.mousePosMaterial.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
+    this.mousePosMaterial.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos
+    this.mousePosMaterial.uniforms.uDir.value = MouseClass.getInstance().normalizedDir
 
     let inputPositionRenderTarget = this.mousePosRT1
     this.outputPositionRenderTarget = this.mousePosRT2

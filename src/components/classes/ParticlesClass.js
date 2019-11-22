@@ -209,6 +209,8 @@ class ParticlesClass extends BaseClass {
     this.positionMaterial.uniforms.uFrame.value = this.frame
 
     this.material.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
+    this.material.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos
+
     this.material.uniforms.uMousePosTexture.value = FBOClass.getInstance().mousePosTexture
 
     this.updatePositions()
@@ -224,6 +226,7 @@ class ParticlesClass extends BaseClass {
       this.mouseMoved = 0
     }
 
+    this.material.uniforms.uNoiseMix.value = this.mouseMoved
     this.positionMaterial.uniforms.uNoiseMix.value = this.mouseMoved
 
     super.renderFrame()
@@ -251,6 +254,14 @@ class ParticlesMaterial extends ShaderMaterial {
     this.uniforms.uMousePos = {
       type: 'v2',
       value: new Vector2(0, 0)
+    }
+    this.uniforms.uPrevMousePos = {
+      type: 'v2',
+      value: new Vector2(0, 0)
+    }
+    this.uniforms.uNoiseMix = {
+      type: 'f',
+      value: 0.0
     }
 
     this.vertexShader = vertexShader
