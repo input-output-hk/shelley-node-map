@@ -1,7 +1,12 @@
 uniform vec2 uTextureSize;
 uniform sampler2D uTexture;
+uniform sampler2D positionTexture;
+uniform sampler2D defaultPositionTexture;
+uniform vec2 uMousePos;
+uniform vec2 uPrevMousePos;
 
 attribute vec3 offset;
+attribute vec3 tPosition;
 
 varying vec2 vUv;
 varying vec2 vPUv;
@@ -19,11 +24,23 @@ void main() {
 	if (color.r + color.g + color.b > 0.01) {
 
 		#include <begin_vertex>
+
+		vec4 noisePositionData = (texture2D(positionTexture, tPosition.xy) / uTextureSize.x);
+		vec4 defaultPosition = (texture2D(defaultPositionTexture, tPosition.xy) / uTextureSize.x);
+
+		transformed.xyz = defaultPosition.xyz;
+
+		float puvToMouse = distance(uMousePos, puv);
+		if (puvToMouse < 0.5) {
+			transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(  pow(1.0-puvToMouse*2.0, 10.0) , 0.0, 1.0 ));
+		}
+
 		#include <project_vertex>
 
-		vec3 scaledOffset = vec3((offset.xy/uTextureSize-0.5), offset.z);
-
-		mvPosition = modelViewMatrix * vec4(scaledOffset, 1.0);
+		// if (displace == false) {
+		// 	vec3 scaledOffset = vec3((offset.xy/uTextureSize-0.5), offset.z);
+		// 	mvPosition = modelViewMatrix * vec4(scaledOffset, 1.0);
+		// }
 
 		vec4 newPos = vec4(position, 0.);
 
@@ -31,6 +48,7 @@ void main() {
 		newPos.xy *= scale;
 
 		mvPosition.xyz += newPos.xyz;
+	 	mvPosition.xy -= 0.5;
 
 		gl_Position = projectionMatrix * mvPosition;
 

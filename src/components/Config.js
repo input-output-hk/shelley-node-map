@@ -31,7 +31,8 @@ class Config {
         sphereRadius: 2,
         globeRadius: 2.2,
         maxWidth: 500,
-        maxHeight: 500
+        maxHeight: 500,
+        particleLifeMax: 1000
       },
       post: {
         enabled: false,

@@ -21,12 +21,12 @@ void main() {
 
 	// greyscale
 	float grey = color.r * 0.21 + color.g * 0.71 + color.b * 0.07;
-	color = vec4(grey * 1.5, 0.0, 0.0, 1.0);
+	color = vec4(grey * 1.0, grey * 0.01, grey * 0.01, 1.0);
 
-	float noiseVal = snoise3(vec3(puv * 2.0, uTime * 0.2 ));
+	//float noiseVal = snoise3(vec3(puv * 2.0, uTime * 0.2 ));
 
-	color.r *= max( 0.4, noiseVal );
-	color += noiseVal * 0.02;
+	// color.r *= max( 0.4, noiseVal );
+	// color += noiseVal * 0.02;
 
 	float border = 0.9;
 	float radius = 0.5;
@@ -37,8 +37,8 @@ void main() {
 
 	gl_FragColor = color;
 
-	float contrast = 3.0;
-	float brightness = 0.1;
+	float contrast = 1.0;
+	float brightness = 0.0;
 
 	vec3 colorContrasted = color.rgb * contrast;
 	vec3 bright = colorContrasted + vec3(brightness, brightness, brightness);

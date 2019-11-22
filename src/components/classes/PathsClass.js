@@ -1,13 +1,7 @@
 import {
   Mesh,
   BufferGeometry,
-  CylinderGeometry,
-  InstancedBufferGeometry,
-  InstancedBufferAttribute,
-  ShaderLib,
   Color,
-  Object3D,
-  MeshPhysicalMaterial,
   MeshBasicMaterial,
   CubicBezierCurve3,
   BufferAttribute,
@@ -21,9 +15,7 @@ import BaseClass from './BaseClass'
 
 import { latLongToCartesian, clamp } from '../../helpers/math'
 
-// shaders
-import fragmentShader from '../../shaders/paths.frag'
-import vertexShader from '../../shaders/paths.vert'
+// test data
 import { coords } from '../../data/test'
 
 const CURVE_MIN_ALTITUDE = 0
@@ -68,7 +60,7 @@ class PathsClass extends BaseClass {
 
     this.mesh = new Mesh()
 
-    const lineCount = 2000
+    const lineCount = 500
 
     this.counters = []
 
@@ -81,7 +73,7 @@ class PathsClass extends BaseClass {
       const start = coords[randIndex1]
       const end = coords[randIndex2]
 
-      if (typeof end === 'undefined') {
+      if (typeof start === 'undefined' || typeof end === 'undefined') {
         continue
       }
 
@@ -129,23 +121,5 @@ class PathsClass extends BaseClass {
     super.renderFrame()
   }
 }
-
-// class PathsMaterial extends MeshBasicMaterial {
-//   constructor (config) {
-//     super(config)
-//     this.type = 'ShaderMaterial'
-
-//     this.uniforms = ShaderLib.basic.uniforms
-
-//     this.uniforms.uTime = {
-//       type: 'f',
-//       value: 0.0
-//     }
-
-//     this.vertexShader = vertexShader
-//     this.fragmentShader = fragmentShader
-//     this.lights = true
-//   }
-// }
 
 export default PathsClass

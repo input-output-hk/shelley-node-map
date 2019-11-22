@@ -4,15 +4,10 @@ import {
   CylinderGeometry,
   InstancedBufferGeometry,
   InstancedBufferAttribute,
-  MeshStandardMaterial,
   ShaderLib,
   Color,
-  BoxBufferGeometry,
-  RingBufferGeometry,
-  Vector3,
   Object3D,
-  DoubleSide,
-  MeshPhysicalMaterial
+  MeshBasicMaterial
 } from 'three'
 
 import BaseClass from './BaseClass'
@@ -27,15 +22,11 @@ import vertexShader from '../../shaders/markers.vert'
 
 class MarkersClass extends BaseClass {
   init () {
-    this.instanceTotal = 100
+    this.instanceTotal = coords.length
 
     this.material = new MarkersMaterial({
       color: new Color(0xcccccc),
-      metalness: 0.6,
-      roughness: 0.5,
       flatShading: true
-      // depthTest: false,
-      // depthWrite: false
     })
 
     const tubeGeo = new CylinderGeometry(0.0, 0.006, 0.08, 6)
@@ -51,7 +42,7 @@ class MarkersClass extends BaseClass {
 
     for (let index = 0; index < this.instanceTotal; index++) {
       if (typeof coords[index] !== 'undefined') {
-        const pos = latLongToCartesian(coords[index].lat, coords[index].long, this.config.scene.sphereRadius * 1.1)
+        const pos = latLongToCartesian(coords[index].lat, coords[index].long, this.config.scene.sphereRadius * 1.05)
 
         const x = this.offsetsAttr.array[index * 3 + 0] = pos.x
         const y = this.offsetsAttr.array[index * 3 + 1] = pos.y
@@ -88,12 +79,12 @@ class MarkersClass extends BaseClass {
   }
 }
 
-class MarkersMaterial extends MeshPhysicalMaterial {
+class MarkersMaterial extends MeshBasicMaterial {
   constructor (config) {
     super(config)
     this.type = 'ShaderMaterial'
 
-    this.uniforms = ShaderLib.physical.uniforms
+    this.uniforms = ShaderLib.basic.uniforms
 
     this.uniforms.uTime = {
       type: 'f',
