@@ -25,7 +25,7 @@ void main() {
   // }
   //currentPosition = defaultPosition;
 
-  currentPosition = mix(defaultPosition, currentPosition, uNoiseMix);
+  currentPosition = mix(defaultPosition, currentPosition, uNoiseMix * 0.95);
 
   gl_FragColor = currentPosition;
 

@@ -6,6 +6,7 @@ uniform float uTime;
 
 varying vec2 vPUv;
 varying vec2 vUv;
+varying vec4 vMousePosTexture;
 
 void main() {
 
@@ -32,6 +33,8 @@ void main() {
 	float radius = 0.5;
 	float dist = radius - distance(uv, vec2(0.5));
 	float t = smoothstep(0.0, border, dist);
+
+	// color.rgb += vMousePosTexture.rgb * 0.3;
 
 	color.a *= t;
 

@@ -96,6 +96,14 @@ class ParticlesClass extends BaseClass {
         uFrame: {
           type: 'f',
           value: 0.0
+        },
+        uMousePos: {
+          type: 'v2',
+          value: new Vector2(0, 0)
+        },
+        uPrevMousePos: {
+          type: 'v2',
+          value: new Vector2(0, 0)
         }
       },
       vertexShader: PassThroughVert,
@@ -207,6 +215,8 @@ class ParticlesClass extends BaseClass {
     this.material.uniforms.uTime.value += args.dt
 
     this.positionMaterial.uniforms.uFrame.value = this.frame
+    this.positionMaterial.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
+    this.positionMaterial.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos
 
     this.material.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
     this.material.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos

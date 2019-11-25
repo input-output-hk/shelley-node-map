@@ -12,6 +12,7 @@ attribute vec3 tPosition;
 
 varying vec2 vUv;
 varying vec2 vPUv;
+varying vec4 vMousePosTexture;
 
 void main() {
 
@@ -34,15 +35,16 @@ void main() {
 		transformed.xyz = defaultPosition.xyz;
 
 		vec4 mousePosTexture = texture2D(uMousePosTexture, puv);
+		vMousePosTexture = mousePosTexture;
 
-		vec2 dir = uMousePos - uPrevMousePos;
+		vec2 dir = mousePosTexture.xy;
 
-
-		transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(mousePosTexture.r, 0.0, 1.0 ) );
+		transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(mousePosTexture.b, 0.0, 1.0 ) );
 
 		float puvToMouse = distance(uMousePos, puv);
 		if (puvToMouse < 0.5) {
 		 	transformed.xy += ( clamp(dir * 25.0, 0.0, 0.1) * clamp(  pow(1.0-puvToMouse * 2.0, 20.0) , 0.0, 1.0 ) ) * (uNoiseMix*0.5);
+		 	//transformed.xy += dir;
 		}
 
 		// float puvToMouse = distance(uMousePos, puv);

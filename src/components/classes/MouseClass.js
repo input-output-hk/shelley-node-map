@@ -33,7 +33,6 @@ class MouseClass extends BaseClass {
     this.mousePos.y = e.clientY - RendererClass.getInstance().renderer.domElement.offsetTop
 
     this.mouseDelta = this.mousePos.clone().sub(this.prevMousePos)
-    console.log(this.mouseDelta)
 
     this.movement.x = e.movementX
     this.movement.y = e.movementY

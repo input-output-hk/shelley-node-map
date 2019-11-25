@@ -195,7 +195,7 @@ class FBOClass extends BaseClass {
     // mouse position
     this.mousePosMaterial.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
     this.mousePosMaterial.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos
-    this.mousePosMaterial.uniforms.uDir.value = MouseClass.getInstance().normalizedDir
+    // this.mousePosMaterial.uniforms.uDir.value = MouseClass.getInstance().normalizedDir
 
     let inputPositionRenderTarget = this.mousePosRT1
     this.outputPositionRenderTarget = this.mousePosRT2
