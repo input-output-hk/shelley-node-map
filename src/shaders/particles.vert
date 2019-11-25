@@ -43,7 +43,7 @@ void main() {
 
 		float puvToMouse = distance(uMousePos, puv);
 		if (puvToMouse < 0.5) {
-		 	transformed.xy += ( clamp(dir * 25.0, 0.0, 0.1) * clamp(  pow(1.0-puvToMouse * 2.0, 20.0) , 0.0, 1.0 ) ) * (uNoiseMix*0.5);
+		 	transformed.xy += ( clamp(dir * 25.0, 0.0, 0.1) * clamp(  pow(1.0-puvToMouse * 2.0, 20.0) , 0.0, 1.0 ) ) * (uNoiseMix*0.3);
 		 	//transformed.xy += dir;
 		}
 

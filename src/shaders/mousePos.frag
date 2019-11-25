@@ -28,7 +28,6 @@ void main() {
 
     float puvToMouse = distance(uMousePos, vUv);
 
-    float grey = 0.0;
     float mouseRadius = 0.35;
 
     float decay = 0.96;
@@ -41,7 +40,7 @@ void main() {
         float mouse = pow(1.0-abs(dist) * 1.0, 125.0);
         color.b = mouse;
 
-        color.xy = vec2(dir * mouse) * 100.0;
+        color.xy = dir * mouse * 10.0;
     }
 
     color += mousePosTexture * decay;

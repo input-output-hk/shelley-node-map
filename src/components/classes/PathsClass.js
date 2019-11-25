@@ -55,6 +55,7 @@ class PathsClass extends BaseClass {
       blending: AdditiveBlending,
       opacity: 0.3,
       transparent: true,
+      depthWrite: false,
       color: new Color(0x003a62)
     })
 

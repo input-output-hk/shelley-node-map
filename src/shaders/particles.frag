@@ -34,17 +34,15 @@ void main() {
 	float dist = radius - distance(uv, vec2(0.5));
 	float t = smoothstep(0.0, border, dist);
 
-	// color.rgb += vMousePosTexture.rgb * 0.3;
-
 	color.a *= t;
 
 	gl_FragColor = color;
 
-	float contrast = 1.0;
-	float brightness = 0.0;
+	// float contrast = 1.0;
+	// float brightness = 0.0;
 
-	vec3 colorContrasted = color.rgb * contrast;
-	vec3 bright = colorContrasted + vec3(brightness, brightness, brightness);
-	gl_FragColor.rgb = bright;
+	// vec3 colorContrasted = color.rgb * contrast;
+	// vec3 bright = colorContrasted + vec3(brightness, brightness, brightness);
+	// gl_FragColor.rgb = bright;
 
 }

@@ -20,7 +20,7 @@ class IcosahedronClass extends BaseClass {
     })
     this.mesh = new Mesh(this.geometry, this.material)
 
-    this.geometry2 = new IcosahedronBufferGeometry(this.config.scene.sphereRadius * 1.09, 1)
+    this.geometry2 = new IcosahedronBufferGeometry(this.config.scene.sphereRadius * 1.08, 1)
     this.material2 = new MeshBasicMaterial({
       color: new Color(0x000000)
     })

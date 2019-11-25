@@ -7,7 +7,7 @@ import {
   ShaderLib,
   Color,
   Object3D,
-  MeshBasicMaterial
+  MeshLambertMaterial
 } from 'three'
 
 import BaseClass from './BaseClass'
@@ -29,7 +29,7 @@ class MarkersClass extends BaseClass {
       flatShading: true
     })
 
-    const tubeGeo = new CylinderGeometry(0.0, 0.006, 0.08, 6)
+    const tubeGeo = new CylinderGeometry(0.0, 0.005, 0.08, 6)
     const tubeBufferGeo = new BufferGeometry().fromGeometry(tubeGeo)
     this.geometry = new InstancedBufferGeometry().copy(tubeBufferGeo)
     this.geometry.rotateX(Math.PI / 2)
@@ -79,12 +79,12 @@ class MarkersClass extends BaseClass {
   }
 }
 
-class MarkersMaterial extends MeshBasicMaterial {
+class MarkersMaterial extends MeshLambertMaterial {
   constructor (config) {
     super(config)
     this.type = 'ShaderMaterial'
 
-    this.uniforms = ShaderLib.basic.uniforms
+    this.uniforms = ShaderLib.lambert.uniforms
 
     this.uniforms.uTime = {
       type: 'f',

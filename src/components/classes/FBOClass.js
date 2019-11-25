@@ -4,7 +4,6 @@
 ------------------------------------------ */
 import {
   WebGLRenderTarget,
-  NoBlending,
   LinearFilter,
   RGBAFormat,
   PlaneBufferGeometry,
@@ -16,6 +15,12 @@ import {
   OrthographicCamera
 
 } from 'three'
+
+/* ------------------------------------------
+ Post
+ ------------------------------------------ */
+import { EffectComposer, ShaderPass, RenderPass, UnrealBloomPass, TexturePass } from '../../post/EffectComposer'
+import BrightnessContrastShader from '../../post/BrightnessContrast'
 
 /* ------------------------------------------
 Classes
@@ -33,8 +38,6 @@ Shaders
 ------------------------------------------ */
 import PassThroughVert from '../../shaders/passThrough.vert'
 import MousePosFrag from '../../shaders/mousePos.frag'
-import EdgeDetectFrag from '../../shaders/edgeDetect.frag'
-import BlurFrag from '../../shaders/blur.frag'
 import MouseClass from './MouseClass'
 
 class FBOClass extends BaseClass {
@@ -47,9 +50,26 @@ class FBOClass extends BaseClass {
     this.height = height
 
     this.initRenderTargets()
-    this.initMaterial()
     this.initMousePos()
     this.addMesh()
+
+    this.composer = new EffectComposer(RendererClass.getInstance().renderer)
+
+    this.renderPassMain = new RenderPass(IcosaSceneClass.getInstance().scene, CameraClass.getInstance().camera)
+    this.composer.addPass(this.renderPassMain)
+
+    this.renderPassParticles = new RenderPass(this.particleScene, this.particleCamera)
+    this.renderPassParticles.clear = false
+    this.renderPassParticles.alpha = true
+    this.renderPassParticles.transparent = true
+    this.composer.addPass(this.renderPassParticles)
+
+    this.BrightnessContrastPass = new ShaderPass(BrightnessContrastShader)
+    this.composer.addPass(this.BrightnessContrastPass)
+
+    this.bloomPass = new UnrealBloomPass(new Vector2(this.width, this.height), 1.0, 2, 0.1) // 1.0, 9, 0.5, 512);
+    this.bloomPass.renderToScreen = true
+    this.composer.addPass(this.bloomPass)
   }
 
   initRenderTargets () {
@@ -70,36 +90,6 @@ class FBOClass extends BaseClass {
     this.RTParticles = this.RTGlobe.clone()
     this.rt3 = this.RTGlobe.clone()
     this.rt4 = this.RTGlobe.clone()
-  }
-
-  initMaterial () {
-    this.edgeMaterial = new ShaderMaterial({
-      uniforms: {
-        uTexture: { type: 't' }
-      },
-      vertexShader: PassThroughVert,
-      fragmentShader: EdgeDetectFrag,
-      blending: NoBlending,
-      transparent: false,
-      fog: false,
-      lights: false,
-      depthWrite: false,
-      depthTest: false
-    })
-
-    this.blurMaterial = new ShaderMaterial({
-      uniforms: {
-        uTexture: { type: 't' }
-      },
-      vertexShader: PassThroughVert,
-      fragmentShader: BlurFrag,
-      blending: NoBlending,
-      transparent: false,
-      fog: false,
-      lights: false,
-      depthWrite: false,
-      depthTest: false
-    })
   }
 
   addMesh () {
@@ -171,6 +161,8 @@ class FBOClass extends BaseClass {
   resize (width, height) {
     this.RTGlobe.setSize(width, height)
     this.RTParticles.setSize(width, height)
+    this.composer.setSize(width, height)
+    this.bloomPass.setSize(width, height)
     super.resize()
   }
 
@@ -184,13 +176,8 @@ class FBOClass extends BaseClass {
 
     // particles scene
     ParticlesClass.getInstance().mesh.material.uniforms.uTexture.value = this.RTGlobe.texture
-    RendererClass.getInstance().renderer.setRenderTarget(null)
-    RendererClass.getInstance().renderer.autoClear = false
-    RendererClass.getInstance().renderer.render(IcosaSceneClass.getInstance().scene, CameraClass.getInstance().camera)
 
-    RendererClass.getInstance().renderer.setRenderTarget(null)
-    RendererClass.getInstance().renderer.autoClear = false
-    RendererClass.getInstance().renderer.render(this.particleScene, this.particleCamera)
+    this.composer.render()
 
     // mouse position
     this.mousePosMaterial.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
