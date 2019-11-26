@@ -13,7 +13,7 @@ void main() {
 
   // vec3 scaledPosition = vec3(currentPosition.x, currentPosition.y, currentPosition.z + (sin(uFrame * 0.001) * 1.0)) * 0.0000045;
   float kernelSize = 0.03;
-  vec3 scaledPosition = vec3(currentPosition.x, currentPosition.y, currentPosition.z+(sin(uFrame * 0.01))) * kernelSize;
+  vec3 scaledPosition = vec3(currentPosition.x, currentPosition.y, sin(uFrame * 0.001) * 100.0) * kernelSize;
 
   float noiseSpeed = 0.4;
 
