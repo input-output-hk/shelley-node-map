@@ -27,14 +27,16 @@ class MarkersClass extends BaseClass {
     this.material = new MarkersMaterial({
       color: new Color(0x888888),
       flatShading: true
+      // wireframe: true
     })
 
-    const tubeGeo = new CylinderGeometry(0.0, 0.005, 0.08, 6)
+    const tubeGeo = new CylinderGeometry(0.0, 0.005, 0.08, 3)
     const tubeBufferGeo = new BufferGeometry().fromGeometry(tubeGeo)
     this.geometry = new InstancedBufferGeometry().copy(tubeBufferGeo)
     this.geometry.rotateX(Math.PI / 2)
 
     this.offsetsAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal * 3).fill(99999), 3)
+    this.idAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal), 1)
     this.scalesAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal), 1)
     this.quaternionsAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal * 4), 4)
     this.isHoveredAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal), 1)
@@ -56,6 +58,8 @@ class MarkersClass extends BaseClass {
         this.quaternionsAttr.array[index * 4 + 1] = dummyObject.quaternion.y
         this.quaternionsAttr.array[index * 4 + 2] = dummyObject.quaternion.z
         this.quaternionsAttr.array[index * 4 + 3] = dummyObject.quaternion.w
+
+        this.idAttr.array[index] = index
       }
     }
 
@@ -64,6 +68,7 @@ class MarkersClass extends BaseClass {
     this.geometry.addAttribute('quaternion', this.quaternionsAttr)
     this.geometry.addAttribute('isHovered', this.isHoveredAttr)
     this.geometry.addAttribute('isSelected', this.isSelectedAttr)
+    this.geometry.addAttribute('id', this.idAttr)
 
     this.mesh = new Mesh(this.geometry, this.material)
 

@@ -2,13 +2,24 @@ vec3 applyQuaternionToVector( vec4 q, vec3 v ){
 	return v + 2.0 * cross( q.xyz, cross( q.xyz, v ) + q.w * v );
 }
 
+mat4 rotationMatrix(vec3 axis, float angle) {
+   axis = normalize(axis);
+   float s = sin(angle);
+   float c = cos(angle);
+   float oc = 1.0 - c;
+
+   return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+               oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+               oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+               0.0,                                0.0,                                0.0,                                1.0);
+}
+
 uniform float uTime;
 
 attribute vec3 offset;
 attribute float scale;
 attribute vec4 quaternion;
-
-
+attribute float id;
 
 #define LAMBERT
 
@@ -48,7 +59,13 @@ void main() {
 
 	#include <begin_vertex>
 
+	mat4 rotation = rotationMatrix(offset.xyz * vec3(0.0, 0.0, 1.0), (id + uTime * 1.5));
+	vec4 newPos = rotation * vec4( transformed, 1.0 );
+
+	transformed.xyz = newPos.xyz;
+
 	transformed.xyz = applyQuaternionToVector( quaternion, transformed.xyz );
+	
 	transformed.xyz += offset.xyz;
 
 	#include <morphtarget_vertex>

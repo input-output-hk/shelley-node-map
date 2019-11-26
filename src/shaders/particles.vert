@@ -24,7 +24,6 @@ void main() {
 
 	vec4 color = texture2D(uTexture, puv);
 
-
 	if (color.r + color.g + color.b > 0.01) {
 
 		#include <begin_vertex>
@@ -39,25 +38,14 @@ void main() {
 
 		vec2 dir = mousePosTexture.xy;
 
-		transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(mousePosTexture.b, 0.0, 1.0 ) );
+		transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(mousePosTexture.b, -1.0, 1.0 ) );
 
 		float puvToMouse = distance(uMousePos, puv);
 		if (puvToMouse < 0.5) {
-		 	transformed.xy += ( clamp(dir * 25.0, 0.0, 0.1) * clamp(  pow(1.0-puvToMouse * 2.0, 20.0) , 0.0, 1.0 ) ) * (uNoiseMix*0.3);
-		 	//transformed.xy += dir;
+		 	transformed.xy += ( clamp(dir * 2.0, -1.0, 1.0) * clamp(  pow(1.0-puvToMouse * 2.0, 10.0) , 0.0, 1.0 ) ) * (uNoiseMix * 0.1);
 		}
 
-		// float puvToMouse = distance(uMousePos, puv);
-		// if (puvToMouse < 0.5) {
-		// 	transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(  pow(1.0-puvToMouse*2.0, 10.0) , 0.0, 1.0 ));
-		// }
-
 		#include <project_vertex>
-
-		// if (displace == false) {
-		// 	vec3 scaledOffset = vec3((offset.xy/uTextureSize-0.5), offset.z);
-		// 	mvPosition = modelViewMatrix * vec4(scaledOffset, 1.0);
-		// }
 
 		vec4 newPos = vec4(position, 0.);
 

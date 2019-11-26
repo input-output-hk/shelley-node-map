@@ -53,7 +53,7 @@ class PathsClass extends BaseClass {
   init () {
     this.material = new MeshBasicMaterial({
       blending: AdditiveBlending,
-      opacity: 0.3,
+      opacity: 0.4,
       transparent: true,
       depthWrite: false,
       color: new Color(0x003a62)

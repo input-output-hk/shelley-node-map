@@ -19,8 +19,9 @@ import {
 /* ------------------------------------------
  Post
  ------------------------------------------ */
-import { EffectComposer, ShaderPass, RenderPass, UnrealBloomPass, TexturePass } from '../../post/EffectComposer'
+import { EffectComposer, ShaderPass, RenderPass, UnrealBloomPass } from '../../post/EffectComposer'
 import BrightnessContrastShader from '../../post/BrightnessContrast'
+import FXAAShader from '../../post/FXAAShader'
 
 /* ------------------------------------------
 Classes
@@ -68,8 +69,15 @@ class FBOClass extends BaseClass {
     this.composer.addPass(this.BrightnessContrastPass)
 
     this.bloomPass = new UnrealBloomPass(new Vector2(this.width, this.height), 1.0, 2, 0.1) // 1.0, 9, 0.5, 512);
-    this.bloomPass.renderToScreen = true
+
     this.composer.addPass(this.bloomPass)
+
+    this.FXAAPass = new ShaderPass(FXAAShader)
+    this.FXAAPass.material.uniforms[ 'resolution' ].value.x = 1 / (window.innerWidth)
+    this.FXAAPass.material.uniforms[ 'resolution' ].value.y = 1 / (window.innerHeight)
+
+    this.FXAAPass.renderToScreen = true
+    this.composer.addPass(this.FXAAPass)
   }
 
   initRenderTargets () {
@@ -163,6 +171,8 @@ class FBOClass extends BaseClass {
     this.RTParticles.setSize(width, height)
     this.composer.setSize(width, height)
     this.bloomPass.setSize(width, height)
+    this.FXAAPass.material.uniforms[ 'resolution' ].value.x = 1 / (window.innerWidth)
+    this.FXAAPass.material.uniforms[ 'resolution' ].value.y = 1 / (window.innerHeight)
     super.resize()
   }
 
@@ -182,7 +192,6 @@ class FBOClass extends BaseClass {
     // mouse position
     this.mousePosMaterial.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
     this.mousePosMaterial.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos
-    // this.mousePosMaterial.uniforms.uDir.value = MouseClass.getInstance().normalizedDir
 
     let inputPositionRenderTarget = this.mousePosRT1
     this.outputPositionRenderTarget = this.mousePosRT2

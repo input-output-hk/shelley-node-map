@@ -36,11 +36,11 @@ void main() {
     float dist = distToSegment(uPrevMousePos, uMousePos, vUv);
 
     if (dist < mouseRadius) {
-        vec2 dir = vec2(uMousePos - uPrevMousePos);
         float mouse = pow(1.0-abs(dist) * 1.0, 125.0);
         color.b = mouse;
 
-        color.xy = dir * mouse * 10.0;
+        vec2 dir = vec2(uMousePos - uPrevMousePos);
+        color.xy = dir;
     }
 
     color += mousePosTexture * decay;

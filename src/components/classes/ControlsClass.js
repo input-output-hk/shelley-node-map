@@ -13,7 +13,7 @@ class ControlsClass extends BaseClass {
     this.controls.enableZoom = this.config.camera.enableZoom
     this.controls.zoomSpeed = 0.7
     this.controls.autoRotateSpeed = 0.3
-    this.controls.autoRotate = true
+    this.controls.autoRotate = false
     this.controls.enableDamping = true
     this.controls.dampingFactor = 0.01
     super.init()
