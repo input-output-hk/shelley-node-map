@@ -3,7 +3,8 @@ import {
   IcosahedronBufferGeometry,
   MeshBasicMaterial,
   Color,
-  AdditiveBlending
+  AdditiveBlending,
+  SphereBufferGeometry
 } from 'three'
 
 import BaseClass from './BaseClass'
@@ -20,7 +21,7 @@ class IcosahedronClass extends BaseClass {
     })
     this.mesh = new Mesh(this.geometry, this.material)
 
-    this.geometry2 = new IcosahedronBufferGeometry(this.config.scene.sphereRadius * 1.08, 1)
+    this.geometry2 = new SphereBufferGeometry(this.config.scene.sphereRadius * 1.04, 10, 10)
     this.material2 = new MeshBasicMaterial({
       color: new Color(0x000000)
     })

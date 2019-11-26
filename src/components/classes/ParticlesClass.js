@@ -89,6 +89,10 @@ class ParticlesClass extends BaseClass {
           type: 't',
           value: null
         },
+        initialPositionTexture: {
+          type: 't',
+          value: null
+        },
         uNoiseMix: {
           type: 'f',
           value: 1.0
@@ -158,12 +162,16 @@ class ParticlesClass extends BaseClass {
 
     const positionData = this.textureHelper.createPositionTexture()
     this.defaultPositionTexture = positionData.positionTexture
+    this.initialPositionTexture = positionData.initialPositionTexture
 
     // this.passThroughTexture(positionData.positionTexture, this.positionRenderTarget1)
     // this.passThroughTexture(this.positionRenderTarget1.texture, this.positionRenderTarget2)
 
     this.positionMaterial.uniforms.defaultPositionTexture.value = this.defaultPositionTexture
     this.material.uniforms.defaultPositionTexture.value = this.defaultPositionTexture
+
+    this.positionMaterial.uniforms.initialPositionTexture.value = this.initialPositionTexture
+    this.material.uniforms.initialPositionTexture.value = this.initialPositionTexture
 
     this.positionScene = new Scene()
 
@@ -254,6 +262,10 @@ class ParticlesMaterial extends ShaderMaterial {
     this.uniforms.uMousePosTexture = { value: null }
     this.uniforms.uTime = { value: 0.0 }
     this.uniforms.positionTexture = {
+      type: 't',
+      value: null
+    }
+    this.uniforms.initialPositionTexture = {
       type: 't',
       value: null
     }

@@ -22,7 +22,7 @@ void main() {
 
 	// greyscale
 	float grey = color.r * 0.21 + color.g * 0.71 + color.b * 0.07;
-	color = vec4(grey * 1.0, grey * 0.01, grey * 0.01, 1.0);
+	color = vec4(grey * 1.0, grey * 0.2, grey * 0.2, 1.0);
 
 	//float noiseVal = snoise3(vec3(puv * 2.0, uTime * 0.2 ));
 

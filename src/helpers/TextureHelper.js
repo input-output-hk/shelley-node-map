@@ -43,6 +43,7 @@ export default class TextureHelper {
   createPositionTexture ({
     defaultPositions = new Float32Array()
   } = {}) {
+    let initialTextureArray = new Float32Array(this.textureWidth * this.textureHeight * 4)
     let textureArray = new Float32Array(this.textureWidth * this.textureHeight * 4)
     let lifeArray = []
     let step = 6
@@ -60,15 +61,12 @@ export default class TextureHelper {
       textureArray[i * 4 + 1] = location.y
       textureArray[i * 4 + 2] = location.z
       textureArray[i * 4 + 3] = lifeDuration
-    }
 
-    // if (defaultPositions.length) {
-    //   for (let index = 0; index < defaultPositions.length; index += 3) {
-    //     textureArray[index + 0] = defaultPositions[index + 0]
-    //     textureArray[index + 1] = defaultPositions[index + 1]
-    //     textureArray[index + 2] = defaultPositions[index + 2]
-    //   }
-    // }
+      initialTextureArray[i * 4 + 0] = Math.random() * this.config.scene.width
+      initialTextureArray[i * 4 + 1] = Math.random() * this.config.scene.height
+      initialTextureArray[i * 4 + 2] = Math.random() * this.config.scene.height
+      initialTextureArray[i * 4 + 3] = 0
+    }
 
     let positionTexture = new DataTexture(
       textureArray,
@@ -82,8 +80,21 @@ export default class TextureHelper {
     positionTexture.generateMipmaps = false
     positionTexture.needsUpdate = true
 
+    let initialPositionTexture = new DataTexture(
+      initialTextureArray,
+      this.textureWidth,
+      this.textureHeight,
+      RGBAFormat,
+      FloatType
+    )
+    initialPositionTexture.minFilter = NearestFilter
+    initialPositionTexture.magFilter = NearestFilter
+    initialPositionTexture.generateMipmaps = false
+    initialPositionTexture.needsUpdate = true
+
     return {
       positionTexture: positionTexture,
+      initialPositionTexture: initialPositionTexture,
       lifeArray: lifeArray
     }
   }
