@@ -1,0 +1,23 @@
+{
+  "name": "shelley-node-map-server",
+  "version": "0.0.1",
+  "description": "Parse Cardano Shelley node log file and update firebase",
+  "author": "Scott Darby <scott.darby@iohk.io>",
+  "license": "ISC",
+  "scripts": {
+    "server": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.2",
+    "firebase-admin": "8.8.0",
+    "node-fetch": "^2.2.0",
+    "node-watch": "^0.6.3",
+    "nodemon": "^2.0.1",
+    "read-last-lines": "^1.7.1",
+    "ws": "^7.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^4.0.1",
+    "standard": "^11.0.1"
+  }
+}

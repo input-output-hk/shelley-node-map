@@ -70,3 +70,6 @@ yarn.lock
 # Build
 build
 .cache/
+
+# firebase auth
+server/auth

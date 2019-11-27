@@ -1,0 +1,9 @@
+
+jormungandr --config ./config.yaml --genesis-block-hash 27668e95121566df0bb2e2c11c5fd95dfe59efd570f8f592235ecff167ca3f29 --secret ./pool-secret1.yaml &> node.log &
+
+tail -f node.log | grep --line-buffered -i "block_events" &> blocks.log & 
+
+
+
+
+
