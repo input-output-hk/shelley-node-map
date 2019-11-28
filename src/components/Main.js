@@ -3,11 +3,15 @@
 ------------------------------------------ */
 import React, { Component } from 'react'
 import {
-  Clock, Path
+  Clock
 } from 'three'
 import EventEmitter from 'eventemitter3'
 import mixin from 'mixin'
 import TWEEN from 'tween.js'
+
+import firebase from 'firebase/app'
+import 'firebase/firestore'
+import 'firebase/auth'
 
 /* ------------------------------------------
 Config
@@ -51,6 +55,35 @@ class Main extends mixin(EventEmitter, Component) {
     this.initStage()
   }
 
+  initFireBase () {
+    return new Promise((resolve, reject) => {
+      try {
+        firebase.initializeApp(this.config.fireBase)
+        firebase.firestore()
+        this.firebaseDB = firebase.firestore()
+      } catch (error) {
+        console.log(error)
+      }
+      this.docRef = this.firebaseDB.collection(this.config.fireBase.collection)
+
+      let coords = []
+
+      firebase.auth().signInAnonymously()
+        .then(() => {
+          this.docRef.get().then(function (querySnapshot) {
+            querySnapshot.forEach(function (doc) {
+              coords.push(doc.data())
+            })
+            resolve(coords)
+          })
+        })
+        .catch(function (error) {
+          console.log(error.code)
+          console.log(error.message)
+        })
+    })
+  }
+
   initStage () {
     GlobeSceneClass.getInstance().init()
     IcosaSceneClass.getInstance().init()
@@ -73,12 +106,15 @@ class Main extends mixin(EventEmitter, Component) {
     GlobeClass.getInstance().init()
     AmbientLightClass.getInstance().init()
     PointLightClass.getInstance().init()
-    MarkersClass.getInstance().init()
-    PathsClass.getInstance().init()
 
-    this.buildScene()
-    this.addEvents()
-    this.animate()
+    this.initFireBase().then((data) => {
+      MarkersClass.getInstance().init(data)
+      PathsClass.getInstance().init(data)
+
+      this.buildScene()
+      this.addEvents()
+      this.animate()
+    })
   }
 
   buildScene () {

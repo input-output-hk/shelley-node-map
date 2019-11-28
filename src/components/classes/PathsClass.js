@@ -16,7 +16,7 @@ import BaseClass from './BaseClass'
 import { latLongToCartesian, clamp } from '../../helpers/math'
 
 // test data
-import { coords } from '../../data/test'
+// import { coords } from '../../data/test'
 
 const CURVE_MIN_ALTITUDE = 0
 const CURVE_MAX_ALTITUDE = 1.8
@@ -50,7 +50,9 @@ class PathsClass extends BaseClass {
     }
   }
 
-  init () {
+  init (data) {
+    let coords = data
+    console.log(coords)
     this.material = new MeshBasicMaterial({
       blending: AdditiveBlending,
       opacity: 0.4,

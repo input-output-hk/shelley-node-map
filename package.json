@@ -84,6 +84,7 @@
   "dependencies": {
     "d3-geo": "^1.11.9",
     "deep-assign": "^3.0.0",
+    "firebase": "^7.5.0",
     "glsl-blend": "^1.0.3",
     "glsl-edge-detection": "^1.1.0",
     "glsl-noise": "^0.0.0",

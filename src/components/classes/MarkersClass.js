@@ -14,14 +14,16 @@ import BaseClass from './BaseClass'
 
 import { latLongToCartesian } from '../../helpers/math'
 
-import { coords } from '../../data/test'
+// import { coords } from '../../data/test'
 
 // shaders
 import fragmentShader from '../../shaders/markers.frag'
 import vertexShader from '../../shaders/markers.vert'
 
 class MarkersClass extends BaseClass {
-  init () {
+  init (data) {
+    let coords = data
+
     this.instanceTotal = coords.length
 
     this.material = new MarkersMaterial({
