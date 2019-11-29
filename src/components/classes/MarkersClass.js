@@ -7,22 +7,38 @@ import {
   ShaderLib,
   Color,
   Object3D,
-  MeshLambertMaterial
+  MeshLambertMaterial,
+  Vector3,
+  CubicBezierCurve3,
+  BufferAttribute,
+  MeshBasicMaterial,
+  AdditiveBlending,
+  Line,
+  Geometry,
+  TubeGeometry,
+  LineBasicMaterial
 } from 'three'
+
+import { geoInterpolate } from 'd3-geo'
+
+import TWEEN from 'tween.js'
 
 import BaseClass from './BaseClass'
 
-import { latLongToCartesian } from '../../helpers/math'
+import { latLongToCartesian, clamp } from '../../helpers/math'
 
 // import { coords } from '../../data/test'
 
 // shaders
 import fragmentShader from '../../shaders/markers.frag'
 import vertexShader from '../../shaders/markers.vert'
+import CameraClass from './CameraClass'
 
 class MarkersClass extends BaseClass {
   init (data) {
     let coords = data
+
+    this.camTween = null
 
     this.instanceTotal = coords.length
 
@@ -37,6 +53,7 @@ class MarkersClass extends BaseClass {
     this.geometry = new InstancedBufferGeometry().copy(tubeBufferGeo)
     this.geometry.rotateX(Math.PI / 2)
 
+    this.ipMap = []
     this.offsetsAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal * 3).fill(99999), 3)
     this.idAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal), 1)
     this.scalesAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal), 1)
@@ -61,7 +78,11 @@ class MarkersClass extends BaseClass {
         this.quaternionsAttr.array[index * 4 + 2] = dummyObject.quaternion.z
         this.quaternionsAttr.array[index * 4 + 3] = dummyObject.quaternion.w
 
+        this.scalesAttr.array[index] = 1.0
+
         this.idAttr.array[index] = index
+
+        this.ipMap[index] = coords[index].ip
       }
     }
 
@@ -76,11 +97,80 @@ class MarkersClass extends BaseClass {
 
     this.mesh.frustumCulled = false
 
-    super.init()
+    // super.init()
+  }
+
+  getArcFromCoords (camPos, endPos, steps) {
+    // get normal of both points
+    let cb = new Vector3()
+    let ab = new Vector3()
+    let normal = new Vector3()
+    cb.subVectors(new Vector3(), endPos)
+    ab.subVectors(camPos, endPos)
+    cb.cross(ab)
+    normal.copy(cb).normalize()
+
+    const angle = camPos.angleTo(endPos) // get the angle between vectors
+    const angleDelta = angle / (steps - 1)
+
+    let points = []
+    for (var i = 0; i < steps; i++) {
+      points.push(camPos.clone().applyAxisAngle(normal, angleDelta * i))
+    }
+
+    return points
+  }
+
+  highlight (data) {
+    let that = this
+
+    this.ipMap.forEach((ip, index) => {
+      if (ip === data.ip) {
+        if (that.camTween) {
+          that.camTween.stop()
+        }
+
+        const nodePos = new Vector3(
+          that.offsetsAttr.array[index * 3 + 0],
+          that.offsetsAttr.array[index * 3 + 1],
+          that.offsetsAttr.array[index * 3 + 2]
+        )
+
+        const steps = 25
+        let points = this.getArcFromCoords(CameraClass.getInstance().camera.position, nodePos, steps)
+
+        that.camTween = new TWEEN.Tween({ step: 0 })
+          .to({ step: steps - 2 }, 3000)
+          .onUpdate(function () {
+            // lerp between points on arc
+            const pos1 = points[Math.floor(this.step)]
+            const pos2 = points[Math.floor(this.step + 1)]
+            const pos = pos1.clone().lerp(pos2, this.step % 1)
+
+            CameraClass.getInstance().camera.position.set(pos.x, pos.y, pos.z)
+          })
+          .onComplete(() => {
+            const properties = { scale: 5.0 }
+            new TWEEN.Tween(properties)
+              .to({ scale: 1.0 }, 2000)
+              .onUpdate(function () {
+                that.scalesAttr.array[index] = properties.scale
+                that.scalesAttr.needsUpdate = true
+              })
+              .easing(TWEEN.Easing.Quadratic.InOut)
+              .start()
+          })
+          .easing(TWEEN.Easing.Quadratic.InOut)
+          .start()
+      }
+    })
   }
 
   renderFrame (args) {
     this.material.uniforms.uTime.value += args.dt
+    this.material.uniforms.uDTime.value = args.dt
+
+    TWEEN.update()
 
     super.renderFrame()
   }
@@ -94,6 +184,11 @@ class MarkersMaterial extends MeshLambertMaterial {
     this.uniforms = ShaderLib.lambert.uniforms
 
     this.uniforms.uTime = {
+      type: 'f',
+      value: 0.0
+    }
+
+    this.uniforms.uDTime = {
       type: 'f',
       value: 0.0
     }

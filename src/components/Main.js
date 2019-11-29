@@ -68,8 +68,25 @@ class Main extends mixin(EventEmitter, Component) {
 
       let coords = []
 
+      let that = this
+
       firebase.auth().signInAnonymously()
         .then(() => {
+          // setup live data listener
+          this.docRef.onSnapshot(function (querySnapshot) {
+            querySnapshot.docChanges().forEach(function (change) {
+              if (change.type === 'added') {
+                that.emit('added', change.doc.data())
+              }
+              if (change.type === 'modified') {
+                that.emit('modified', change.doc.data())
+              }
+              if (change.type === 'removed') {
+                that.emit('removed', change.doc.data())
+              }
+            })
+          })
+
           this.docRef.get().then(function (querySnapshot) {
             querySnapshot.forEach(function (doc) {
               coords.push(doc.data())
@@ -108,6 +125,8 @@ class Main extends mixin(EventEmitter, Component) {
     PointLightClass.getInstance().init()
 
     this.initFireBase().then((data) => {
+      this.data = data
+
       MarkersClass.getInstance().init(data)
       PathsClass.getInstance().init(data)
 
@@ -159,6 +178,24 @@ class Main extends mixin(EventEmitter, Component) {
     RendererClass.getInstance().renderer.domElement.addEventListener('touchmove', (e) => {
       TouchClass.getInstance().onTouchMove(e)
     }, false)
+
+    // window.addEventListener('mousedown', () => {
+    //   MarkersClass.getInstance().highlight(this.data[0])
+    // })
+
+    // on node data changes
+    this.on('modified', (data) => {
+      // console.log('Modified: ', data)
+      MarkersClass.getInstance().highlight(data)
+    })
+
+    this.on('added', (data) => {
+      console.log('Added: ', data)
+    })
+
+    this.on('removed', (data) => {
+      console.log('Removed: ', data)
+    })
   }
 
   resize () {

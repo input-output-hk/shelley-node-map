@@ -18,10 +18,6 @@ import { latLongToCartesian, clamp } from '../../helpers/math'
 // test data
 // import { coords } from '../../data/test'
 
-const CURVE_MIN_ALTITUDE = 0
-const CURVE_MAX_ALTITUDE = 1.8
-const CURVE_SEGMENTS = 32
-
 class PathsClass extends BaseClass {
   getSplineFromCoords (coords) {
     const startLat = coords[0]
@@ -34,7 +30,7 @@ class PathsClass extends BaseClass {
     const end = latLongToCartesian(endLat, endLng, this.config.scene.globeRadius)
 
     // altitude
-    const altitude = clamp(start.distanceTo(end) * 0.75, CURVE_MIN_ALTITUDE, CURVE_MAX_ALTITUDE)
+    const altitude = clamp(start.distanceTo(end) * 0.75, this.config.curveMinAltitude, this.config.curveMaxAltitude)
 
     // 2 control points
     const interpolate = geoInterpolate([startLng, startLat], [endLng, endLat])
@@ -52,7 +48,6 @@ class PathsClass extends BaseClass {
 
   init (data) {
     let coords = data
-    console.log(coords)
     this.material = new MeshBasicMaterial({
       blending: AdditiveBlending,
       opacity: 0.4,
@@ -71,7 +66,7 @@ class PathsClass extends BaseClass {
       const randIndex1 = Math.floor(Math.random() * coords.length)
       const randIndex2 = Math.floor(Math.random() * coords.length)
 
-      this.counters.push(Math.floor(Math.random() * CURVE_SEGMENTS))
+      this.counters.push(Math.floor(Math.random() * this.config.curveSegments))
 
       const start = coords[randIndex1]
       const end = coords[randIndex2]
@@ -89,8 +84,8 @@ class PathsClass extends BaseClass {
 
       // add curve geometry
       const curveGeometry = new BufferGeometry()
-      const points = new Float32Array(CURVE_SEGMENTS * 3)
-      const vertices = spline.getPoints(CURVE_SEGMENTS - 1)
+      const points = new Float32Array(this.config.curveSegments * 3)
+      const vertices = spline.getPoints(this.config.curveSegments - 1)
 
       for (let i = 0, j = 0; i < vertices.length; i++) {
         const vertex = vertices[i]
@@ -114,8 +109,8 @@ class PathsClass extends BaseClass {
     this.mesh.children.forEach((line, index) => {
       this.counters[index] += (args.dt * 30.0)
 
-      if (this.counters[index] > CURVE_SEGMENTS) {
-        this.counters[index] = Math.floor(Math.random() * CURVE_SEGMENTS)
+      if (this.counters[index] > this.config.curveSegments) {
+        this.counters[index] = Math.floor(Math.random() * this.config.curveSegments)
       }
 
       line.geometry.setDrawRange(0, this.counters[index])

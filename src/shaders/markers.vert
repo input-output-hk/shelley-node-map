@@ -20,6 +20,7 @@ attribute vec3 offset;
 attribute float scale;
 attribute vec4 quaternion;
 attribute float id;
+attribute float isSelected;
 
 #define LAMBERT
 
@@ -59,8 +60,12 @@ void main() {
 
 	#include <begin_vertex>
 
+	// scale
+	transformed.xyz *= scale;
+
 	mat4 rotation = rotationMatrix(offset.xyz * vec3(0.0, 0.0, 1.0), (id + uTime * 1.5));
 	vec4 newPos = rotation * vec4( transformed, 1.0 );
+
 
 	transformed.xyz = newPos.xyz;
 
