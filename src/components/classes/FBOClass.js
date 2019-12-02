@@ -69,7 +69,6 @@ class FBOClass extends BaseClass {
     this.composer.addPass(this.BrightnessContrastPass)
 
     this.bloomPass = new UnrealBloomPass(new Vector2(this.width, this.height), 1.0, 2, 0.1) // 1.0, 9, 0.5, 512);
-
     this.composer.addPass(this.bloomPass)
 
     this.FXAAPass = new ShaderPass(FXAAShader)

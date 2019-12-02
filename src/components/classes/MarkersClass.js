@@ -40,7 +40,9 @@ class MarkersClass extends BaseClass {
 
     this.camTween = null
 
-    this.instanceTotal = coords.length
+    this.nodeCount = coords.length
+
+    this.instanceTotal = 1000 // max number of instances
 
     this.material = new MarkersMaterial({
       color: new Color(0x888888),
@@ -61,31 +63,6 @@ class MarkersClass extends BaseClass {
     this.isHoveredAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal), 1)
     this.isSelectedAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal), 1)
 
-    for (let index = 0; index < this.instanceTotal; index++) {
-      if (typeof coords[index] !== 'undefined') {
-        const pos = latLongToCartesian(coords[index].lat, coords[index].long, this.config.scene.sphereRadius * 1.05)
-
-        const x = this.offsetsAttr.array[index * 3 + 0] = pos.x
-        const y = this.offsetsAttr.array[index * 3 + 1] = pos.y
-        const z = this.offsetsAttr.array[index * 3 + 2] = pos.z
-
-        const dummyObject = new Object3D()
-        dummyObject.position.set(x, y, z)
-        dummyObject.lookAt(0, 0, 0)
-
-        this.quaternionsAttr.array[index * 4 + 0] = dummyObject.quaternion.x
-        this.quaternionsAttr.array[index * 4 + 1] = dummyObject.quaternion.y
-        this.quaternionsAttr.array[index * 4 + 2] = dummyObject.quaternion.z
-        this.quaternionsAttr.array[index * 4 + 3] = dummyObject.quaternion.w
-
-        this.scalesAttr.array[index] = 1.0
-
-        this.idAttr.array[index] = index
-
-        this.ipMap[index] = coords[index].ip
-      }
-    }
-
     this.geometry.addAttribute('offset', this.offsetsAttr)
     this.geometry.addAttribute('scale', this.scalesAttr)
     this.geometry.addAttribute('quaternion', this.quaternionsAttr)
@@ -93,11 +70,52 @@ class MarkersClass extends BaseClass {
     this.geometry.addAttribute('isSelected', this.isSelectedAttr)
     this.geometry.addAttribute('id', this.idAttr)
 
+    for (let index = 0; index < this.nodeCount; index++) {
+      if (typeof coords[index] !== 'undefined') {
+        this.addNodeGeoData(coords[index], index)
+      }
+    }
+
     this.mesh = new Mesh(this.geometry, this.material)
 
-    this.mesh.frustumCulled = false
+    // this.mesh.frustumCulled = false
 
     // super.init()
+  }
+
+  addNodeGeoData (data, index) {
+    const pos = latLongToCartesian(data.lat, data.long, this.config.scene.sphereRadius * 1.05)
+
+    const x = this.offsetsAttr.array[index * 3 + 0] = pos.x
+    const y = this.offsetsAttr.array[index * 3 + 1] = pos.y
+    const z = this.offsetsAttr.array[index * 3 + 2] = pos.z
+
+    const dummyObject = new Object3D()
+    dummyObject.position.set(x, y, z)
+    dummyObject.lookAt(0, 0, 0)
+
+    this.quaternionsAttr.array[index * 4 + 0] = dummyObject.quaternion.x
+    this.quaternionsAttr.array[index * 4 + 1] = dummyObject.quaternion.y
+    this.quaternionsAttr.array[index * 4 + 2] = dummyObject.quaternion.z
+    this.quaternionsAttr.array[index * 4 + 3] = dummyObject.quaternion.w
+
+    this.scalesAttr.array[index] = 1.0
+
+    this.idAttr.array[index] = index
+
+    this.ipMap[index] = data.ip
+
+    this.geometry.attributes.offset.needsUpdate = true
+    this.geometry.attributes.scale.needsUpdate = true
+    this.geometry.attributes.quaternion.needsUpdate = true
+    this.geometry.attributes.isHovered.needsUpdate = true
+    this.geometry.attributes.isSelected.needsUpdate = true
+    this.geometry.attributes.id.needsUpdate = true
+  }
+
+  addNode (data) {
+    this.nodeCount += 1
+    this.addNodeGeoData(data, this.nodeCount)
   }
 
   getArcFromCoords (camPos, endPos, steps) {
@@ -122,47 +140,52 @@ class MarkersClass extends BaseClass {
   }
 
   highlight (data) {
-    let that = this
+    return new Promise((resolve, reject) => {
+      let that = this
 
-    this.ipMap.forEach((ip, index) => {
-      if (ip === data.ip) {
-        if (that.camTween) {
-          that.camTween.stop()
+      this.ipMap.forEach((ip, index) => {
+        if (ip === data.ip) {
+          if (that.camTween) {
+            that.camTween.stop()
+          }
+
+          const nodePos = new Vector3(
+            that.offsetsAttr.array[index * 3 + 0],
+            that.offsetsAttr.array[index * 3 + 1],
+            that.offsetsAttr.array[index * 3 + 2]
+          )
+
+          const steps = 25
+          let points = this.getArcFromCoords(CameraClass.getInstance().camera.position, nodePos, steps)
+
+          that.camTween = new TWEEN.Tween({ step: 0 })
+            .to({ step: steps - 2 }, 3000)
+            .onUpdate(function () {
+              // lerp between points on arc
+              const pos1 = points[Math.floor(this.step)]
+              const pos2 = points[Math.floor(this.step + 1)]
+              const pos = pos1.clone().lerp(pos2, this.step % 1)
+
+              CameraClass.getInstance().camera.position.set(pos.x, pos.y, pos.z)
+            })
+            .onComplete(() => {
+              const properties = { scale: 5.0 }
+              new TWEEN.Tween(properties)
+                .to({ scale: 1.0 }, 2000)
+                .onUpdate(function () {
+                  that.scalesAttr.array[index] = properties.scale
+                  that.scalesAttr.needsUpdate = true
+                })
+                .onComplete(() => {
+                  resolve()
+                })
+                .easing(TWEEN.Easing.Quadratic.InOut)
+                .start()
+            })
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .start()
         }
-
-        const nodePos = new Vector3(
-          that.offsetsAttr.array[index * 3 + 0],
-          that.offsetsAttr.array[index * 3 + 1],
-          that.offsetsAttr.array[index * 3 + 2]
-        )
-
-        const steps = 25
-        let points = this.getArcFromCoords(CameraClass.getInstance().camera.position, nodePos, steps)
-
-        that.camTween = new TWEEN.Tween({ step: 0 })
-          .to({ step: steps - 2 }, 3000)
-          .onUpdate(function () {
-            // lerp between points on arc
-            const pos1 = points[Math.floor(this.step)]
-            const pos2 = points[Math.floor(this.step + 1)]
-            const pos = pos1.clone().lerp(pos2, this.step % 1)
-
-            CameraClass.getInstance().camera.position.set(pos.x, pos.y, pos.z)
-          })
-          .onComplete(() => {
-            const properties = { scale: 5.0 }
-            new TWEEN.Tween(properties)
-              .to({ scale: 1.0 }, 2000)
-              .onUpdate(function () {
-                that.scalesAttr.array[index] = properties.scale
-                that.scalesAttr.needsUpdate = true
-              })
-              .easing(TWEEN.Easing.Quadratic.InOut)
-              .start()
-          })
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .start()
-      }
+      })
     })
   }
 

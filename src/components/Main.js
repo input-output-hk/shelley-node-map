@@ -49,6 +49,8 @@ class Main extends mixin(EventEmitter, Component) {
 
     this.config = new Config().data
     this.clock = new Clock()
+    this.modifiedQueue = []
+    this.processingQueue = false
   }
 
   componentDidMount () {
@@ -167,6 +169,14 @@ class Main extends mixin(EventEmitter, Component) {
     FBOClass.getInstance().renderFrame()
   }
 
+  addNewNode (data) {
+    this.data.push(data)
+    MarkersClass.getInstance().addNode(data)
+    PathsClass.getInstance().addNode(data)
+
+    MarkersClass.getInstance().highlight(data)
+  }
+
   addEvents () {
     window.addEventListener('resize', this.resize.bind(this), false)
     this.resize()
@@ -180,22 +190,58 @@ class Main extends mixin(EventEmitter, Component) {
     }, false)
 
     // window.addEventListener('mousedown', () => {
-    //   MarkersClass.getInstance().highlight(this.data[0])
+    //   const data = {
+    //     city: 'Ashburn',
+    //     country: 'United States',
+    //     ip: '54.242.227.95',
+    //     lat: 0.0,
+    //     long: 0.0,
+    //     region: 'Virginia',
+    //     timestamp: { seconds: 1575282866, nanoseconds: 504000000 }
+    //   }
+
+    //   this.addNewNode(data)
     // })
 
     // on node data changes
     this.on('modified', (data) => {
-      // console.log('Modified: ', data)
-      MarkersClass.getInstance().highlight(data)
+      this.addToModifiedQueue(data)
+      this.processModifiedQueue()
     })
 
     this.on('added', (data) => {
+      this.addNewNode(data)
       console.log('Added: ', data)
     })
 
     this.on('removed', (data) => {
       console.log('Removed: ', data)
     })
+  }
+
+  addToModifiedQueue (data) {
+    this.modifiedQueue.push(data)
+  }
+
+  processModifiedQueue () {
+    if (this.modifiedQueue.length === 0) {
+      return
+    }
+
+    if (this.processingQueue) {
+      return
+    }
+
+    this.processingQueue = true
+
+    const data = this.modifiedQueue.shift()
+
+    MarkersClass.getInstance().highlight(data)
+      .then(() => {
+        console.log('Updated: ', data)
+        this.processingQueue = false
+        this.processModifiedQueue()
+      })
   }
 
   resize () {

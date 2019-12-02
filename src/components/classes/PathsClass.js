@@ -34,8 +34,8 @@ class PathsClass extends BaseClass {
 
     // 2 control points
     const interpolate = geoInterpolate([startLng, startLat], [endLng, endLat])
-    const midCoord1 = interpolate(0.25)
-    const midCoord2 = interpolate(0.75)
+    const midCoord1 = interpolate(0.25 + (Math.random() * 0.1))
+    const midCoord2 = interpolate(0.75 + (Math.random() * 0.1))
     const mid1 = latLongToCartesian(midCoord1[1], midCoord1[0], this.config.scene.globeRadius + altitude)
     const mid2 = latLongToCartesian(midCoord2[1], midCoord2[0], this.config.scene.globeRadius + altitude)
 
@@ -47,7 +47,7 @@ class PathsClass extends BaseClass {
   }
 
   init (data) {
-    let coords = data
+    this.coords = data
     this.material = new MeshBasicMaterial({
       blending: AdditiveBlending,
       opacity: 0.4,
@@ -58,51 +58,61 @@ class PathsClass extends BaseClass {
 
     this.mesh = new Mesh()
 
-    const lineCount = 700
+    this.lineCount = 700
 
     this.counters = []
 
-    for (let index = 0; index < lineCount; index++) {
-      const randIndex1 = Math.floor(Math.random() * coords.length)
-      const randIndex2 = Math.floor(Math.random() * coords.length)
-
-      this.counters.push(Math.floor(Math.random() * this.config.curveSegments))
-
-      const start = coords[randIndex1]
-      const end = coords[randIndex2]
-
-      if (typeof start === 'undefined' || typeof end === 'undefined') {
-        continue
-      }
-
-      const { spline } = this.getSplineFromCoords([
-        start.lat,
-        start.long,
-        end.lat,
-        end.long
-      ])
-
-      // add curve geometry
-      const curveGeometry = new BufferGeometry()
-      const points = new Float32Array(this.config.curveSegments * 3)
-      const vertices = spline.getPoints(this.config.curveSegments - 1)
-
-      for (let i = 0, j = 0; i < vertices.length; i++) {
-        const vertex = vertices[i]
-        points[j++] = vertex.x
-        points[j++] = vertex.y
-        points[j++] = vertex.z
-      }
-
-      curveGeometry.addAttribute('position', new BufferAttribute(points, 3))
-      curveGeometry.setDrawRange(0, 0)
-
-      let mesh = new Line(curveGeometry, this.material)
-
-      this.mesh.add(mesh)
+    for (let index = 0; index < this.lineCount; index++) {
+      const randIndex1 = Math.floor(Math.random() * this.coords.length)
+      const randIndex2 = Math.floor(Math.random() * this.coords.length)
+      this.addLine(randIndex1, randIndex2)
     }
 
     super.init()
+  }
+
+  addLine (index1, index2) {
+    this.counters.push(Math.floor(Math.random() * this.config.curveSegments))
+
+    const start = this.coords[index1]
+    const end = this.coords[index2]
+
+    if (typeof start === 'undefined' || typeof end === 'undefined') {
+      return
+    }
+
+    const { spline } = this.getSplineFromCoords([
+      start.lat,
+      start.long,
+      end.lat,
+      end.long
+    ])
+
+    // add curve geometry
+    const curveGeometry = new BufferGeometry()
+    const points = new Float32Array(this.config.curveSegments * 3)
+    const vertices = spline.getPoints(this.config.curveSegments - 1)
+
+    for (let i = 0, j = 0; i < vertices.length; i++) {
+      const vertex = vertices[i]
+      points[j++] = vertex.x
+      points[j++] = vertex.y
+      points[j++] = vertex.z
+    }
+
+    curveGeometry.addAttribute('position', new BufferAttribute(points, 3))
+    curveGeometry.setDrawRange(0, 0)
+
+    let mesh = new Line(curveGeometry, this.material)
+
+    this.mesh.add(mesh)
+  }
+
+  addNode (data) {
+    this.coords.push(data)
+    for (let index = 0; index < 10; index++) {
+      this.addLine(this.coords.length - 1, Math.floor(Math.random() * this.coords.length))
+    }
   }
 
   renderFrame (args) {
