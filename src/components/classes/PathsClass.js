@@ -100,7 +100,7 @@ class PathsClass extends BaseClass {
       points[j++] = vertex.z
     }
 
-    curveGeometry.addAttribute('position', new BufferAttribute(points, 3))
+    curveGeometry.setAttribute('position', new BufferAttribute(points, 3))
     curveGeometry.setDrawRange(0, 0)
 
     let mesh = new Line(curveGeometry, this.material)

@@ -52,9 +52,9 @@ class ParticlesClass extends BaseClass {
 
     this.geometry = new InstancedBufferGeometry()
     const refGeo = new PlaneBufferGeometry(1, 1)
-    this.geometry.addAttribute('position', refGeo.attributes.position)
+    this.geometry.setAttribute('position', refGeo.attributes.position)
 
-    this.geometry.addAttribute('uv', refGeo.attributes.uv)
+    this.geometry.setAttribute('uv', refGeo.attributes.uv)
     this.geometry.setIndex(refGeo.index)
 
     this.offsets = new Float32Array(this.particleCount * 3)
@@ -66,7 +66,7 @@ class ParticlesClass extends BaseClass {
       this.offsets[i * 3 + 2] = 0
     }
 
-    this.geometry.addAttribute('offset', new InstancedBufferAttribute(this.offsets, 3, false))
+    this.geometry.setAttribute('offset', new InstancedBufferAttribute(this.offsets, 3, false))
 
     const positionArray = new Float32Array(this.particleCount * 3)
 
@@ -76,7 +76,7 @@ class ParticlesClass extends BaseClass {
     )
 
     const tPosition = new InstancedBufferAttribute(positionArray, 3)
-    this.geometry.addAttribute('tPosition', tPosition)
+    this.geometry.setAttribute('tPosition', tPosition)
 
     this.mesh = new Mesh(this.geometry, this.material)
 

@@ -63,12 +63,12 @@ class MarkersClass extends BaseClass {
     this.isHoveredAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal), 1)
     this.isSelectedAttr = new InstancedBufferAttribute(new Float32Array(this.instanceTotal), 1)
 
-    this.geometry.addAttribute('offset', this.offsetsAttr)
-    this.geometry.addAttribute('scale', this.scalesAttr)
-    this.geometry.addAttribute('quaternion', this.quaternionsAttr)
-    this.geometry.addAttribute('isHovered', this.isHoveredAttr)
-    this.geometry.addAttribute('isSelected', this.isSelectedAttr)
-    this.geometry.addAttribute('id', this.idAttr)
+    this.geometry.setAttribute('offset', this.offsetsAttr)
+    this.geometry.setAttribute('scale', this.scalesAttr)
+    this.geometry.setAttribute('quaternion', this.quaternionsAttr)
+    this.geometry.setAttribute('isHovered', this.isHoveredAttr)
+    this.geometry.setAttribute('isSelected', this.isSelectedAttr)
+    this.geometry.setAttribute('id', this.idAttr)
 
     for (let index = 0; index < this.nodeCount; index++) {
       if (typeof coords[index] !== 'undefined') {
