@@ -165,8 +165,7 @@ class Main extends mixin(EventEmitter, Component) {
     MarkersClass.getInstance().renderFrame({ dt: dt })
     PathsClass.getInstance().renderFrame({ dt: dt })
     ParticlesClass.getInstance().renderFrame({ dt: dt })
-
-    FBOClass.getInstance().renderFrame()
+    FBOClass.getInstance().renderFrame({ dt: dt })
   }
 
   addNewNode (data) {

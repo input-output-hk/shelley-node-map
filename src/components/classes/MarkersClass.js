@@ -193,7 +193,7 @@ class MarkersClass extends BaseClass {
     this.material.uniforms.uTime.value += args.dt
     this.material.uniforms.uDTime.value = args.dt
 
-    TWEEN.update()
+    // TWEEN.update()
 
     super.renderFrame()
   }
