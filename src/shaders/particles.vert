@@ -8,6 +8,8 @@ uniform vec2 uMousePos;
 uniform vec2 uPrevMousePos;
 uniform float uNoiseMix;
 uniform float uTime;
+uniform float uAspect;
+uniform vec3 uCamPos;
 
 attribute vec3 offset;
 attribute vec3 tPosition;
@@ -15,10 +17,13 @@ attribute vec3 tPosition;
 varying vec2 vUv;
 varying vec2 vPUv;
 varying vec4 vMousePosTexture;
+varying float vCamDist;
 
 void main() {
 
-	 vUv = uv;
+	vCamDist = dot(uCamPos, uCamPos);
+
+	vUv = uv;
 
 	// particle uv
 	vec2 puv = offset.xy / uTextureSize;
@@ -30,9 +35,9 @@ void main() {
 
 		#include <begin_vertex>
 
-		vec4 noisePositionData = (texture2D(positionTexture, tPosition.xy) / uTextureSize.x);
-		vec4 defaultPosition = (texture2D(defaultPositionTexture, tPosition.xy) / uTextureSize.x);
-		vec4 initialPosition = (texture2D(initialPositionTexture, tPosition.xy) / uTextureSize.x);
+		vec4 noisePositionData = (texture2D(positionTexture, tPosition.xy) / (uTextureSize.x  ));
+		vec4 defaultPosition = (texture2D(defaultPositionTexture, tPosition.xy) /(uTextureSize.x  ));
+		vec4 initialPosition = (texture2D(initialPositionTexture, tPosition.xy) / (uTextureSize.x  ));
 
 		vec4 mousePosTexture = texture2D(uMousePosTexture, puv);
 		vMousePosTexture = mousePosTexture;
@@ -42,10 +47,10 @@ void main() {
 		defaultPosition.xyz = mix(initialPosition.xyz, defaultPosition.xyz, clamp(0.5 + uTime * 0.3, 0.0, 1.0));
 
 		transformed.xyz = mix(defaultPosition.xyz, noisePositionData.xyz, clamp(mousePosTexture.b, 0.0, 1.0 ) );
+		transformed.z = 0.0;
 
-
-		float puvToMouse = distance(uMousePos, puv);
-		if (puvToMouse < 0.5) {
+		float puvToMouse = distance(uMousePos * vec2(uAspect, 1.0), puv * vec2(uAspect, 1.0));
+		if (puvToMouse < 0.4) {
 		 	transformed.xy += ( clamp(dir * 2.0, -1.0, 1.0) * clamp(  pow(1.0-puvToMouse * 2.0, 10.0) , 0.0, 1.0 ) ) * (uNoiseMix * 0.1);
 		}
 

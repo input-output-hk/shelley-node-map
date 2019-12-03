@@ -2,15 +2,18 @@
 #pragma glslify: snoise3 = require(glsl-noise/simplex/3d)
 
 uniform sampler2D uTexture;
+uniform vec2 uTextureSize;
 uniform float uTime;
+uniform float uAspect;
 
 varying vec2 vPUv;
 varying vec2 vUv;
 varying vec4 vMousePosTexture;
+varying float vCamDist;
 
 void main() {
 
-	vec2 uv = vUv;
+	vec2 uv = vUv * vec2(uAspect, 1.0);
 	vec2 puv = vPUv;
 
 	// pixel color
@@ -29,8 +32,10 @@ void main() {
 	// color.r *= max( 0.4, noiseVal );
 	// color += noiseVal * 0.02;
 
-	float border = 0.9;
+	float border = 1.0;
 	float radius = 0.5;
+	// float radius = 0.5 + (vCamDist * 0.005);
+	// float radius = 0.5 + (1.0-(uTextureSize.x+uTextureSize.y) * 0.001);
 	float dist = radius - distance(uv, vec2(0.5));
 	float t = smoothstep(0.0, border, dist);
 

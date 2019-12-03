@@ -3,6 +3,7 @@ varying vec2 vUv;
 uniform sampler2D uMousePosTexture;
 uniform vec2 uMousePos;
 uniform vec2 uPrevMousePos;
+uniform float uAspect;
 
 float distToSegment( vec2 x1, vec2 x2, vec2 p ) {
 
@@ -24,23 +25,24 @@ float distToSegment( vec2 x1, vec2 x2, vec2 p ) {
 }
 
 void main() {
-    vec4 mousePosTexture = texture2D(uMousePosTexture, vUv);
 
-    float puvToMouse = distance(uMousePos, vUv);
+    vec4 mousePosTexture = texture2D(uMousePosTexture, vUv);
 
     float mouseRadius = 0.35;
 
     float decay = 0.96;
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
-    float dist = distToSegment(uPrevMousePos, uMousePos, vUv);
+    // vec2 correctedMousePos = uMousePos * vec2(uAspect, 1.0);
+
+    float dist = distToSegment(uPrevMousePos * vec2(uAspect, 1.0), uMousePos  * vec2(uAspect, 1.0), vUv * vec2(uAspect, 1.0));
 
     if (dist < mouseRadius) {
         float mouse = pow(1.0-abs(dist) * 1.0, 125.0);
         color.b = mouse;
 
-        vec2 dir = vec2(uMousePos - uPrevMousePos);
-        color.xy = dir;
+        vec2 dir = vec2((uMousePos * vec2(uAspect, 1.0)) - (uPrevMousePos * vec2(uAspect, 1.0) ) );
+        color.xy = dir*0.5;
     }
 
     color += mousePosTexture * decay;

@@ -25,7 +25,7 @@ import RendererClass from './classes/RendererClass'
 import GlobeSceneClass from './classes/GlobeSceneClass'
 import IcosaSceneClass from './classes/IcosaSceneClass'
 import FBOClass from './classes/FBOClass'
-import QuadCameraClass from './classes/QuadCameraClass'
+// import QuadCameraClass from './classes/QuadCameraClass'
 import CameraClass from './classes/CameraClass'
 import ControlsClass from './classes/ControlsClass'
 import MouseClass from './classes/MouseClass'
@@ -107,15 +107,15 @@ class Main extends mixin(EventEmitter, Component) {
     GlobeSceneClass.getInstance().init()
     IcosaSceneClass.getInstance().init()
     CameraClass.getInstance().init()
-    QuadCameraClass.getInstance().init()
+    // QuadCameraClass.getInstance().init()
 
     RendererClass.getInstance().init()
 
-    const numPoints = this.config.scene.width * this.config.scene.height
+    const numPoints = this.config.particleScene.width * this.config.scene.height
     ParticlesClass.getInstance().init(numPoints)
 
     FBOClass.getInstance().init({
-      width: this.config.scene.width,
+      width: this.config.particleScene.width,
       height: this.config.scene.height
     })
     ControlsClass.getInstance().init()
@@ -248,13 +248,13 @@ class Main extends mixin(EventEmitter, Component) {
     this.width = window.innerWidth
     this.height = window.innerHeight
 
-    if (this.width > this.height) {
-      this.width = this.height
-    }
+    // if (this.width > this.height) {
+    //   this.width = this.height
+    // }
 
-    if (this.height > this.width) {
-      this.height = this.width
-    }
+    // if (this.height > this.width) {
+    //   this.height = this.width
+    // }
 
     // if (this.width > this.config.scene.maxWidth) {
     //   this.width = this.config.scene.maxWidth
@@ -264,7 +264,7 @@ class Main extends mixin(EventEmitter, Component) {
     //   this.height = this.config.scene.maxHeight
     // }
 
-    QuadCameraClass.getInstance().resize(this.width, this.height)
+    // QuadCameraClass.getInstance().resize(this.width, this.height)
     CameraClass.getInstance().resize(this.width, this.height)
     RendererClass.getInstance().resize(this.width, this.height)
     FBOClass.getInstance().resize(this.width, this.height)

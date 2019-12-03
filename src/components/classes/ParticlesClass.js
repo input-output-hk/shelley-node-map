@@ -12,7 +12,8 @@ import {
   ClampToEdgeWrapping,
   NearestFilter,
   RGBAFormat,
-  OrthographicCamera
+  OrthographicCamera,
+  Vector3
 } from 'three'
 
 import BaseClass from './BaseClass'
@@ -28,9 +29,10 @@ import PassThroughFrag from '../../shaders/passThrough.frag'
 import TextureHelper from '../../helpers/TextureHelper'
 import RendererClass from './RendererClass'
 import FBOClass from './FBOClass'
+import CameraClass from './CameraClass'
 
 class ParticlesClass extends BaseClass {
-  init (numPoints = 100) {
+  init (numPoints) {
     this.mouseMoved = 1
     this.frame = 0
 
@@ -45,7 +47,8 @@ class ParticlesClass extends BaseClass {
       transparent: true,
       blending: AdditiveBlending
     })
-    this.material.uniforms.uTextureSize = { value: new Vector2(this.config.scene.width, this.config.scene.height) }
+    this.material.uniforms.uTextureSize = { value: new Vector2(this.config.particleScene.width, this.config.particleScene.height) }
+    this.material.uniforms.uAspect = { value: CameraClass.getInstance().camera.aspect }
 
     this.geometry = new InstancedBufferGeometry()
     const refGeo = new PlaneBufferGeometry(1, 1)
@@ -58,8 +61,8 @@ class ParticlesClass extends BaseClass {
 
     let step = 6
     for (let i = 0; i < numPoints; i++) {
-      this.offsets[i * 3 + 0] = (i * step) % this.config.scene.width
-      this.offsets[i * 3 + 1] = Math.floor((i * step) / this.config.scene.width)
+      this.offsets[i * 3 + 0] = (i * step) % this.config.particleScene.width
+      this.offsets[i * 3 + 1] = Math.floor((i * step) / this.config.particleScene.width)
       this.offsets[i * 3 + 2] = 0
     }
 
@@ -217,19 +220,25 @@ class ParticlesClass extends BaseClass {
     }
   }
 
+  resize (width, height) {
+    this.material.uniforms.uAspect = { value: CameraClass.getInstance().camera.aspect }
+    this.material.uniforms.uTextureSize = { value: new Vector2(width * this.config.particleScene.downScaleFactor, height * this.config.particleScene.downScaleFactor) }
+
+    this.mesh.scale.set(1.0, CameraClass.getInstance().camera.aspect, 1.0)
+  }
+
   renderFrame (args) {
     this.frame++
-
-    this.material.uniforms.uTime.value += args.dt
 
     this.positionMaterial.uniforms.uFrame.value = this.frame
     this.positionMaterial.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
     this.positionMaterial.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos
 
+    this.material.uniforms.uTime.value += args.dt
     this.material.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
     this.material.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos
-
     this.material.uniforms.uMousePosTexture.value = FBOClass.getInstance().mousePosTexture
+    this.material.uniforms.uCamPos.value = CameraClass.getInstance().camera.position
 
     this.updatePositions()
 
@@ -284,6 +293,14 @@ class ParticlesMaterial extends ShaderMaterial {
     this.uniforms.uNoiseMix = {
       type: 'f',
       value: 0.0
+    }
+    this.uniforms.uAspect = {
+      type: 'f',
+      value: 1.0
+    }
+    this.uniforms.uCamPos = {
+      type: 'v3',
+      value: new Vector3(0, 0, 0)
     }
 
     this.vertexShader = vertexShader

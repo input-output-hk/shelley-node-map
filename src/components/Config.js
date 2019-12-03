@@ -23,18 +23,21 @@ class Config {
       renderer: {
         antialias: true
       },
+      particleScene: {
+        width: 2000,
+        height: 2000,
+        downScaleFactor: 0.5
+      },
       scene: {
         fullScreen: true,
-        width: 500,
-        height: 500,
+        width: window.innerWidth,
+        height: window.innerHeight,
         bgColor: 0x000000,
         canvasID: 'stage', // ID of webgl canvas element
         ambientLightColor: 0xffffff,
         ambientLightIntensity: 1.0,
         sphereRadius: 2,
         globeRadius: 2.1,
-        maxWidth: 500,
-        maxHeight: 500,
         particleLifeMax: 1000
       },
       post: {
@@ -64,6 +67,9 @@ class Config {
       detector: Detector,
       floatType: Detector.isIOS ? HalfFloatType : FloatType
     }
+
+    this.data.particleScene.width *= this.data.particleScene.downScaleFactor
+    this.data.particleScene.height *= this.data.particleScene.downScaleFactor
   }
 
   get (id) {

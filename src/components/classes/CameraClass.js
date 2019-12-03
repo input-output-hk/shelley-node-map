@@ -15,13 +15,13 @@ class CameraClass extends BaseClass {
     this.camera.position.x = this.config.camera.initPos.x
     this.camera.position.y = this.config.camera.initPos.y
     this.camera.position.z = this.config.camera.initPos.z
-    this.camera.updateMatrixWorld()
 
-    super.init()
+    this.camera.updateMatrixWorld()
   }
 
   resize (width, height) {
     this.camera.aspect = width / height
+
     this.camera.updateProjectionMatrix()
     super.resize()
   }

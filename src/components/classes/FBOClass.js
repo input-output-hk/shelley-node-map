@@ -149,14 +149,18 @@ class FBOClass extends BaseClass {
         uDir: {
           type: 'v2',
           value: new Vector2(0, 0)
+        },
+        uAspect: {
+          type: 'f',
+          value: 1.0
         }
       },
       vertexShader: PassThroughVert,
       fragmentShader: MousePosFrag
     })
-    const mesh = new Mesh(new PlaneBufferGeometry(2, 2), this.mousePosMaterial)
-    mesh.frustumCulled = false
-    this.mousePosScene.add(mesh)
+    this.mousePosMesh = new Mesh(new PlaneBufferGeometry(2, 2), this.mousePosMaterial)
+    this.mousePosMesh.frustumCulled = false
+    this.mousePosScene.add(this.mousePosMesh)
 
     this.mousePosCamera = new OrthographicCamera()
     this.mousePosCamera.position.z = 1
@@ -172,6 +176,9 @@ class FBOClass extends BaseClass {
     this.bloomPass.setSize(width, height)
     this.FXAAPass.material.uniforms[ 'resolution' ].value.x = 1 / (window.innerWidth)
     this.FXAAPass.material.uniforms[ 'resolution' ].value.y = 1 / (window.innerHeight)
+
+    this.mousePosMaterial.uniforms.uAspect.value = CameraClass.getInstance().camera.aspect
+
     super.resize()
   }
 

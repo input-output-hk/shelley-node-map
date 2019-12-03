@@ -50,8 +50,8 @@ export default class TextureHelper {
 
     for (let i = 0; i < this.nodeCount; i++) {
       let location = new Vector3(
-        ((i * step) % this.config.scene.width),
-        (Math.floor((i * step) / this.config.scene.width)),
+        ((i * step) % this.config.particleScene.width),
+        (Math.floor((i * step) / this.config.particleScene.width)),
         0
       )
 
@@ -62,9 +62,9 @@ export default class TextureHelper {
       textureArray[i * 4 + 2] = location.z
       textureArray[i * 4 + 3] = lifeDuration
 
-      initialTextureArray[i * 4 + 0] = Math.random() * this.config.scene.width
-      initialTextureArray[i * 4 + 1] = Math.random() * this.config.scene.height
-      initialTextureArray[i * 4 + 2] = Math.random() * this.config.scene.height
+      initialTextureArray[i * 4 + 0] = Math.random() * this.config.particleScene.width
+      initialTextureArray[i * 4 + 1] = Math.random() * this.config.particleScene.height
+      initialTextureArray[i * 4 + 2] = Math.random() * this.config.particleScene.height
       initialTextureArray[i * 4 + 3] = 0
     }
 
