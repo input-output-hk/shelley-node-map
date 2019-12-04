@@ -8,24 +8,14 @@ import {
   Color,
   Object3D,
   MeshLambertMaterial,
-  Vector3,
-  CubicBezierCurve3,
-  BufferAttribute,
-  MeshBasicMaterial,
-  AdditiveBlending,
-  Line,
-  Geometry,
-  TubeGeometry,
-  LineBasicMaterial
+  Vector3
 } from 'three'
-
-import { geoInterpolate } from 'd3-geo'
 
 import TWEEN from 'tween.js'
 
 import BaseClass from './BaseClass'
 
-import { latLongToCartesian, clamp } from '../../helpers/math'
+import { latLongToCartesian } from '../../helpers/math'
 
 // import { coords } from '../../data/test'
 
@@ -78,7 +68,7 @@ class MarkersClass extends BaseClass {
 
     this.mesh = new Mesh(this.geometry, this.material)
 
-    // this.mesh.frustumCulled = false
+    this.mesh.frustumCulled = false
 
     // super.init()
   }
@@ -129,10 +119,10 @@ class MarkersClass extends BaseClass {
     normal.copy(cb).normalize()
 
     const angle = camPos.angleTo(endPos) // get the angle between vectors
-    const angleDelta = angle / (steps - 1)
+    const angleDelta = angle / (steps)
 
     let points = []
-    for (var i = 0; i < steps; i++) {
+    for (var i = 0; i <= steps; i++) {
       points.push(camPos.clone().applyAxisAngle(normal, angleDelta * i))
     }
 
@@ -159,14 +149,15 @@ class MarkersClass extends BaseClass {
           let points = this.getArcFromCoords(CameraClass.getInstance().camera.position, nodePos, steps)
 
           that.camTween = new TWEEN.Tween({ step: 0 })
-            .to({ step: steps - 2 }, 3000)
+            .to({ step: steps }, 3000)
             .onUpdate(function () {
               // lerp between points on arc
               const pos1 = points[Math.floor(this.step)]
               const pos2 = points[Math.floor(this.step + 1)]
-              const pos = pos1.clone().lerp(pos2, this.step % 1)
-
-              CameraClass.getInstance().camera.position.set(pos.x, pos.y, pos.z)
+              if (typeof pos2 !== 'undefined') {
+                const pos = pos1.clone().lerp(pos2, this.step % 1)
+                CameraClass.getInstance().camera.position.set(pos.x, pos.y, pos.z)
+              }
             })
             .onComplete(() => {
               const properties = { scale: 5.0 }
@@ -192,8 +183,6 @@ class MarkersClass extends BaseClass {
   renderFrame (args) {
     this.material.uniforms.uTime.value += args.dt
     this.material.uniforms.uDTime.value = args.dt
-
-    // TWEEN.update()
 
     super.renderFrame()
   }
