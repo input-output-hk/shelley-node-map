@@ -10,8 +10,9 @@ class RendererClass extends BaseClass {
   init () {
     this.canvas = document.querySelector('#' + this.config.scene.canvasID)
     this.renderer = new WebGLRenderer({
-      antialias: this.config.renderer.antialias,
-      canvas: this.canvas
+      antialias: false,
+      canvas: this.canvas,
+      powerPreference: 'high-performance'
     })
 
     super.init()

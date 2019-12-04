@@ -20,9 +20,6 @@ class Config {
       curveMinAltitude: 0,
       curveMaxAltitude: 1.8,
       curveSegments: 32,
-      renderer: {
-        antialias: true
-      },
       particleScene: {
         width: 2000,
         height: 2000,
