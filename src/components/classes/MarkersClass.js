@@ -29,6 +29,7 @@ class MarkersClass extends BaseClass {
     let coords = data
 
     this.camTween = null
+    this.updateCamPos = true
 
     this.nodeCount = coords.length
 
@@ -129,6 +130,10 @@ class MarkersClass extends BaseClass {
     return points
   }
 
+  stopUpdateCamPos () {
+    this.updateCamPos = false
+  }
+
   highlight (data) {
     return new Promise((resolve, reject) => {
       let that = this
@@ -151,6 +156,10 @@ class MarkersClass extends BaseClass {
           that.camTween = new TWEEN.Tween({ step: 0 })
             .to({ step: steps }, 3000)
             .onUpdate(function () {
+              if (!that.updateCamPos) {
+                return
+              }
+
               // lerp between points on arc
               const pos1 = points[Math.floor(this.step)]
               const pos2 = points[Math.floor(this.step + 1)]
@@ -160,6 +169,7 @@ class MarkersClass extends BaseClass {
               }
             })
             .onComplete(() => {
+              that.updateCamPos = true
               const properties = { scale: 5.0 }
               new TWEEN.Tween(properties)
                 .to({ scale: 1.0 }, 2000)

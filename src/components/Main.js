@@ -188,19 +188,25 @@ class Main extends mixin(EventEmitter, Component) {
       TouchClass.getInstance().onTouchMove(e)
     }, false)
 
-    // window.addEventListener('mousedown', () => {
-    //   const data = {
-    //     city: 'Ashburn',
-    //     country: 'United States',
-    //     ip: '54.242.227.95',
-    //     lat: 0.0,
-    //     long: 0.0,
-    //     region: 'Virginia',
-    //     timestamp: { seconds: 1575282866, nanoseconds: 504000000 }
-    //   }
+    RendererClass.getInstance().renderer.domElement.addEventListener('wheel', () => {
+      MarkersClass.getInstance().stopUpdateCamPos()
+    })
 
-    //   this.addNewNode(data)
-    // })
+    RendererClass.getInstance().renderer.domElement.addEventListener('mousedown', () => {
+      MarkersClass.getInstance().stopUpdateCamPos()
+
+      // const data = {
+      //   city: 'Ashburn',
+      //   country: 'United States',
+      //   ip: '54.242.227.95',
+      //   lat: 0.0,
+      //   long: 0.0,
+      //   region: 'Virginia',
+      //   timestamp: { seconds: 1575282866, nanoseconds: 504000000 }
+      // }
+
+      // this.addNewNode(data)
+    })
 
     // on node data changes
     this.on('modified', (data) => {
