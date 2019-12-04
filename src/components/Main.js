@@ -3,7 +3,9 @@
 ------------------------------------------ */
 import React, { Component } from 'react'
 import {
-  Clock
+  Clock,
+  Object3D,
+  Vector2
 } from 'three'
 import EventEmitter from 'eventemitter3'
 import mixin from 'mixin'
@@ -51,6 +53,12 @@ class Main extends mixin(EventEmitter, Component) {
     this.clock = new Clock()
     this.modifiedQueue = []
     this.processingQueue = false
+
+    this.state = {
+      tooltipPos: new Vector2(),
+      tooltipCountry: '',
+      tooltipCity: ''
+    }
   }
 
   componentDidMount () {
@@ -159,6 +167,10 @@ class Main extends mixin(EventEmitter, Component) {
 
     TWEEN.update()
 
+    this.setState({
+      tooltipPos: MarkersClass.getInstance().selectedNodePosScreen
+    })
+
     MouseClass.getInstance().renderFrame({ dt: dt })
     TouchClass.getInstance().renderFrame({ dt: dt })
     ControlsClass.getInstance().renderFrame({ dt: dt })
@@ -216,6 +228,12 @@ class Main extends mixin(EventEmitter, Component) {
 
     this.on('added', (data) => {
       this.addNewNode(data)
+
+      this.setState({
+        tooltipCountry: data.country,
+        tooltipCity: data.city
+      })
+
       console.log('Added: ', data)
     })
 
@@ -240,6 +258,11 @@ class Main extends mixin(EventEmitter, Component) {
     this.processingQueue = true
 
     const data = this.modifiedQueue.shift()
+
+    this.setState({
+      tooltipCountry: data.country,
+      tooltipCity: data.city
+    })
 
     MarkersClass.getInstance().highlight(data)
       .then(() => {
@@ -274,6 +297,7 @@ class Main extends mixin(EventEmitter, Component) {
     RendererClass.getInstance().resize(this.width, this.height)
     FBOClass.getInstance().resize(this.width, this.height)
     ParticlesClass.getInstance().resize(this.width, this.height)
+    MarkersClass.getInstance().resize(this.width, this.height)
 
     if (this.config.post.enabled) {
       this.composer.setSize(this.width, this.height)
@@ -295,9 +319,18 @@ class Main extends mixin(EventEmitter, Component) {
   }
 
   render () {
+    var tooltipStyle = {
+      left: this.state.tooltipPos.x,
+      top: this.state.tooltipPos.y
+    }
+
     return (
       <div className={styles.container}>
         <canvas width={this.width} height={this.height} id={this.config.scene.canvasID} />
+        <div className={styles.tooltip} style={tooltipStyle}>
+          <p>{this.state.tooltipCity}</p>
+          <p>{this.state.tooltipCountry}</p>
+        </div>
       </div>
     )
   }

@@ -8,7 +8,8 @@ import {
   Color,
   Object3D,
   MeshLambertMaterial,
-  Vector3
+  Vector3,
+  Vector2
 } from 'three'
 
 import TWEEN from 'tween.js'
@@ -23,6 +24,7 @@ import { latLongToCartesian } from '../../helpers/math'
 import fragmentShader from '../../shaders/markers.frag'
 import vertexShader from '../../shaders/markers.vert'
 import CameraClass from './CameraClass'
+import IcosaSceneClass from './IcosaSceneClass'
 
 class MarkersClass extends BaseClass {
   init (data) {
@@ -30,9 +32,12 @@ class MarkersClass extends BaseClass {
 
     this.camTween = null
     this.updateCamPos = true
+    this.selectionRef = new Object3D()
+    this.selectionRefPos = new Vector3()
+    this.selectedNodePosScreen = new Vector3()
+    IcosaSceneClass.getInstance().scene.add(this.selectionRef)
 
     this.nodeCount = coords.length
-
     this.instanceTotal = 1000 // max number of instances
 
     this.material = new MarkersMaterial({
@@ -134,6 +139,20 @@ class MarkersClass extends BaseClass {
     this.updateCamPos = false
   }
 
+  setNodePosInScreenSpace () {
+    this.selectionRefPos.setFromMatrixPosition(this.selectionRef.matrixWorld)
+    this.selectionRefPos.project(CameraClass.getInstance().camera)
+
+    this.selectedNodePosScreen = new Vector2(
+      (this.selectionRefPos.x + 1) * this.width * 0.5,
+      (1 - this.selectionRefPos.y) * this.height * 0.5
+    )
+  }
+
+  setSelectionRef (nodePos) {
+    this.selectionRef.position.set(nodePos.x, nodePos.y, nodePos.z)
+  }
+
   highlight (data) {
     return new Promise((resolve, reject) => {
       let that = this
@@ -149,6 +168,8 @@ class MarkersClass extends BaseClass {
             that.offsetsAttr.array[index * 3 + 1],
             that.offsetsAttr.array[index * 3 + 2]
           )
+
+          this.setSelectionRef(nodePos)
 
           const steps = 25
           let points = this.getArcFromCoords(CameraClass.getInstance().camera.position, nodePos, steps)
@@ -190,9 +211,16 @@ class MarkersClass extends BaseClass {
     })
   }
 
+  resize (width, height) {
+    this.width = width
+    this.height = height
+  }
+
   renderFrame (args) {
     this.material.uniforms.uTime.value += args.dt
     this.material.uniforms.uDTime.value = args.dt
+
+    this.setNodePosInScreenSpace()
 
     super.renderFrame()
   }

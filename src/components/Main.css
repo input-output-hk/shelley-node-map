@@ -1,11 +1,18 @@
-body {
-    /* cursor: none; */
-}
-
 :local(.container) {
+    font-family: 'Open Sans', sans-serif;
     height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+:local(.tooltip) {
+    text-transform: uppercase;
+    font-size: 12px;
+    text-shadow: 0px 0px 3px #000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    color: #fff
 }
 
