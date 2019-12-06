@@ -1,13 +1,16 @@
+import EventEmitter from 'eventemitter3'
+
 import Config from '../Config'
 
 /**
  * Base Singleton Class
  */
-class BaseClass {
+class BaseClass extends EventEmitter {
   /**
    * Create new singleton class instance
    */
   constructor () {
+    super()
     this.config = new Config().data
 
     if (!this.constructor.instance) {

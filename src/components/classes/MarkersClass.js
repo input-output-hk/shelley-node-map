@@ -73,10 +73,7 @@ class MarkersClass extends BaseClass {
     }
 
     this.mesh = new Mesh(this.geometry, this.material)
-
     this.mesh.frustumCulled = false
-
-    // super.init()
   }
 
   addNodeGeoData (data, index) {
@@ -99,7 +96,8 @@ class MarkersClass extends BaseClass {
 
     this.idAttr.array[index] = index
 
-    this.ipMap[index] = data.ip
+    data.pos = pos
+    this.ipMap[index] = data
 
     this.geometry.attributes.offset.needsUpdate = true
     this.geometry.attributes.scale.needsUpdate = true
@@ -157,8 +155,8 @@ class MarkersClass extends BaseClass {
     return new Promise((resolve, reject) => {
       let that = this
 
-      this.ipMap.forEach((ip, index) => {
-        if (ip === data.ip) {
+      this.ipMap.forEach((nodeData, index) => {
+        if (nodeData.ip === data.ip) {
           if (that.camTween) {
             that.camTween.stop()
           }

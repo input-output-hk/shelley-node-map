@@ -13,6 +13,12 @@
     position: fixed;
     top: 0;
     left: 0;
-    color: #fff
+    color: #fff;
+    opacity: 1.0;
+    transition: opacity 0.3s;
 }
 
+:local(.tooltipHide) {
+    composes: tooltip;
+    opacity: 0.0;
+}

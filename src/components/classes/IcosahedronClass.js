@@ -4,7 +4,6 @@ import {
   MeshBasicMaterial,
   Color,
   AdditiveBlending,
-  SphereBufferGeometry,
   FrontSide,
   BackSide
 } from 'three'
@@ -28,8 +27,15 @@ class IcosahedronClass extends BaseClass {
     this.mesh.frustumCulled = false
 
     this.mesh2 = this.mesh.clone()
-    this.mesh2.scale.set(0.99, 0.99, 0.99)
+    this.mesh2.scale.set(0.98, 0.98, 0.98)
     this.mesh2.material = new MeshBasicMaterial({
+      color: new Color(0x000000),
+      side: BackSide
+    })
+
+    this.mesh3 = this.mesh.clone()
+    this.mesh3.scale.set(0.98, 0.98, 0.98)
+    this.mesh3.material = new MeshBasicMaterial({
       color: new Color(0x000000),
       side: BackSide
     })

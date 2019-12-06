@@ -12,7 +12,8 @@ import {
   Scene,
   PerspectiveCamera,
   Vector2,
-  OrthographicCamera
+  OrthographicCamera,
+  Camera
 
 } from 'three'
 
@@ -40,6 +41,7 @@ Shaders
 import PassThroughVert from '../../shaders/passThrough.vert'
 import MousePosFrag from '../../shaders/mousePos.frag'
 import MouseClass from './MouseClass'
+import PickerSceneClass from './PickerSceneClass'
 
 class FBOClass extends BaseClass {
   init ({
@@ -192,6 +194,10 @@ class FBOClass extends BaseClass {
 
     // particles scene
     ParticlesClass.getInstance().mesh.material.uniforms.uTexture.value = this.RTGlobe.texture
+
+    // debug picker
+    // RendererClass.getInstance().renderer.setRenderTarget(null)
+    // RendererClass.getInstance().renderer.render(PickerSceneClass.getInstance().scene, CameraClass.getInstance().camera)
 
     this.composer.render()
 

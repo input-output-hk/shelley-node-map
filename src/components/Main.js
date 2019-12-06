@@ -4,7 +4,6 @@
 import React, { Component } from 'react'
 import {
   Clock,
-  Object3D,
   Vector2
 } from 'three'
 import EventEmitter from 'eventemitter3'
@@ -26,8 +25,8 @@ Classes
 import RendererClass from './classes/RendererClass'
 import GlobeSceneClass from './classes/GlobeSceneClass'
 import IcosaSceneClass from './classes/IcosaSceneClass'
+import PickerSceneClass from './classes/PickerSceneClass'
 import FBOClass from './classes/FBOClass'
-// import QuadCameraClass from './classes/QuadCameraClass'
 import CameraClass from './classes/CameraClass'
 import ControlsClass from './classes/ControlsClass'
 import MouseClass from './classes/MouseClass'
@@ -38,6 +37,7 @@ import PointLightClass from './classes/PointLightClass'
 import ParticlesClass from './classes/ParticlesClass'
 import GlobeClass from './classes/GlobeClass'
 import MarkersClass from './classes/MarkersClass'
+import PickersClass from './classes/PickersClass'
 import PathsClass from './classes/PathsClass'
 
 /* ------------------------------------------
@@ -56,8 +56,9 @@ class Main extends mixin(EventEmitter, Component) {
 
     this.state = {
       tooltipPos: new Vector2(),
-      tooltipCountry: '',
-      tooltipCity: ''
+      tooltipCountry: null,
+      tooltipCity: null,
+      tooltipHide: true
     }
   }
 
@@ -114,8 +115,8 @@ class Main extends mixin(EventEmitter, Component) {
   initStage () {
     GlobeSceneClass.getInstance().init()
     IcosaSceneClass.getInstance().init()
+    PickerSceneClass.getInstance().init()
     CameraClass.getInstance().init()
-    // QuadCameraClass.getInstance().init()
 
     RendererClass.getInstance().init()
 
@@ -138,6 +139,7 @@ class Main extends mixin(EventEmitter, Component) {
       this.data = data
 
       MarkersClass.getInstance().init(data)
+      PickersClass.getInstance().init(data)
       PathsClass.getInstance().init(data)
 
       this.buildScene()
@@ -153,6 +155,9 @@ class Main extends mixin(EventEmitter, Component) {
     IcosaSceneClass.getInstance().scene.add(PointLightClass.getInstance().light)
     IcosaSceneClass.getInstance().scene.add(MarkersClass.getInstance().mesh)
     IcosaSceneClass.getInstance().scene.add(PathsClass.getInstance().mesh)
+
+    PickerSceneClass.getInstance().scene.add(PickersClass.getInstance().mesh)
+    PickerSceneClass.getInstance().scene.add(IcosahedronClass.getInstance().mesh3)
 
     GlobeSceneClass.getInstance().scene.add(GlobeClass.getInstance().mesh)
   }
@@ -175,6 +180,7 @@ class Main extends mixin(EventEmitter, Component) {
     TouchClass.getInstance().renderFrame({ dt: dt })
     ControlsClass.getInstance().renderFrame({ dt: dt })
     MarkersClass.getInstance().renderFrame({ dt: dt })
+    PickersClass.getInstance().renderFrame({ dt: dt })
     PathsClass.getInstance().renderFrame({ dt: dt })
     ParticlesClass.getInstance().renderFrame({ dt: dt })
     FBOClass.getInstance().renderFrame({ dt: dt })
@@ -220,6 +226,16 @@ class Main extends mixin(EventEmitter, Component) {
       // this.addNewNode(data)
     })
 
+    PickersClass.getInstance().on('nodeMouseOver', (data) => {
+      this.showGeoData(data)
+    })
+
+    PickersClass.getInstance().on('nodeMouseOut', () => {
+      this.setState({
+        tooltipHide: true
+      })
+    })
+
     // on node data changes
     this.on('modified', (data) => {
       this.addToModifiedQueue(data)
@@ -229,10 +245,7 @@ class Main extends mixin(EventEmitter, Component) {
     this.on('added', (data) => {
       this.addNewNode(data)
 
-      this.setState({
-        tooltipCountry: data.country,
-        tooltipCity: data.city
-      })
+      this.showGeoData(data)
 
       console.log('Added: ', data)
     })
@@ -244,6 +257,27 @@ class Main extends mixin(EventEmitter, Component) {
 
   addToModifiedQueue (data) {
     this.modifiedQueue.push(data)
+  }
+
+  showGeoData (data) {
+    if (data.city === null && data.country === null) {
+      data.country = 'Unknown'
+    }
+
+    this.setState({
+      tooltipCountry: data.country,
+      tooltipCity: data.city,
+      tooltipHide: false,
+      tooltipLastBlockTime: new Intl.DateTimeFormat('default', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: false
+      }).format(data.timestamp.toDate())
+    })
   }
 
   processModifiedQueue () {
@@ -259,10 +293,7 @@ class Main extends mixin(EventEmitter, Component) {
 
     const data = this.modifiedQueue.shift()
 
-    this.setState({
-      tooltipCountry: data.country,
-      tooltipCity: data.city
-    })
+    this.showGeoData(data)
 
     MarkersClass.getInstance().highlight(data)
       .then(() => {
@@ -276,28 +307,12 @@ class Main extends mixin(EventEmitter, Component) {
     this.width = window.innerWidth
     this.height = window.innerHeight
 
-    // if (this.width > this.height) {
-    //   this.width = this.height
-    // }
-
-    // if (this.height > this.width) {
-    //   this.height = this.width
-    // }
-
-    // if (this.width > this.config.scene.maxWidth) {
-    //   this.width = this.config.scene.maxWidth
-    // }
-
-    // if (this.height > this.config.scene.maxHeight) {
-    //   this.height = this.config.scene.maxHeight
-    // }
-
-    // QuadCameraClass.getInstance().resize(this.width, this.height)
     CameraClass.getInstance().resize(this.width, this.height)
     RendererClass.getInstance().resize(this.width, this.height)
     FBOClass.getInstance().resize(this.width, this.height)
     ParticlesClass.getInstance().resize(this.width, this.height)
     MarkersClass.getInstance().resize(this.width, this.height)
+    PickersClass.getInstance().resize(this.width, this.height)
 
     if (this.config.post.enabled) {
       this.composer.setSize(this.width, this.height)
@@ -324,12 +339,19 @@ class Main extends mixin(EventEmitter, Component) {
       top: this.state.tooltipPos.y
     }
 
+    let className = styles.tooltip
+
+    if (this.state.tooltipHide) {
+      className = styles.tooltipHide
+    }
+
     return (
       <div className={styles.container}>
         <canvas width={this.width} height={this.height} id={this.config.scene.canvasID} />
-        <div className={styles.tooltip} style={tooltipStyle}>
+        <div className={className} style={tooltipStyle}>
           <p>{this.state.tooltipCity}</p>
           <p>{this.state.tooltipCountry}</p>
+          <p>Last Block Time: {this.state.tooltipLastBlockTime}</p>
         </div>
       </div>
     )
