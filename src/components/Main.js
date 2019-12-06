@@ -269,7 +269,7 @@ class Main extends mixin(EventEmitter, Component) {
       tooltipCity: data.city,
       tooltipHide: false,
       tooltipLastBlockTime: new Intl.DateTimeFormat('default', {
-        year: 'numeric',
+        year: '2-digit',
         month: 'numeric',
         day: 'numeric',
         hour: 'numeric',
