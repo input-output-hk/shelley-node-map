@@ -23,7 +23,7 @@ class Config {
       particleScene: {
         width: 2000,
         height: 2000,
-        downScaleFactor: 0.4
+        downScaleFactor: Detector.isMobile ? 0.4 : 0.5
       },
       scene: {
         fullScreen: true,

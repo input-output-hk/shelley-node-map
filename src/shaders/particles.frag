@@ -43,7 +43,10 @@ void main() {
 	// float radius = 0.5 + (vCamDist * 0.005);
 	// float radius = 0.5 + (1.0-(uTextureSize.x+uTextureSize.y) * 0.001);
 	float dist = radius - distance(uv, vec2(0.5));
-	float t = smoothstep(0.0, border, dist) * 2.0;
+	float t = smoothstep(0.0, border, dist);
+	if (uIsMobile == 1.0) {
+		t *= 2.0;
+	}
 
 	color.a *= t;
 
