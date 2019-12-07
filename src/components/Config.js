@@ -23,7 +23,7 @@ class Config {
       particleScene: {
         width: 2000,
         height: 2000,
-        downScaleFactor: 0.5
+        downScaleFactor: 0.4
       },
       scene: {
         fullScreen: true,

@@ -1,3 +1,4 @@
+// 3rd party
 import {
   Vector2,
   InstancedBufferGeometry,
@@ -26,6 +27,7 @@ import PassThroughVert from '../../shaders/passThrough.vert'
 import PositionFrag from '../../shaders/position.frag'
 import PassThroughFrag from '../../shaders/passThrough.frag'
 
+// classes
 import TextureHelper from '../../helpers/TextureHelper'
 import RendererClass from './RendererClass'
 import FBOClass from './FBOClass'
@@ -35,8 +37,9 @@ class ParticlesClass extends BaseClass {
   init (numPoints) {
     this.mouseMoved = 1
     this.frame = 0
+    let step = 6
 
-    this.particleCount = Math.round(numPoints / 6)
+    this.particleCount = Math.round(numPoints / step)
 
     this.textureHelper = new TextureHelper({
       config: this.config
@@ -59,7 +62,6 @@ class ParticlesClass extends BaseClass {
 
     this.offsets = new Float32Array(this.particleCount * 3)
 
-    let step = 6
     for (let i = 0; i < numPoints; i++) {
       this.offsets[i * 3 + 0] = (i * step) % this.config.particleScene.width
       this.offsets[i * 3 + 1] = Math.floor((i * step) / this.config.particleScene.width)
@@ -121,8 +123,6 @@ class ParticlesClass extends BaseClass {
     this.initPassThrough()
     this.initRenderTargets()
     this.initPositions()
-
-    // super.init()
   }
 
   initPassThrough () {
@@ -166,9 +166,6 @@ class ParticlesClass extends BaseClass {
     const positionData = this.textureHelper.createPositionTexture()
     this.defaultPositionTexture = positionData.positionTexture
     this.initialPositionTexture = positionData.initialPositionTexture
-
-    // this.passThroughTexture(positionData.positionTexture, this.positionRenderTarget1)
-    // this.passThroughTexture(this.positionRenderTarget1.texture, this.positionRenderTarget2)
 
     this.positionMaterial.uniforms.defaultPositionTexture.value = this.defaultPositionTexture
     this.material.uniforms.defaultPositionTexture.value = this.defaultPositionTexture
@@ -239,6 +236,7 @@ class ParticlesClass extends BaseClass {
     this.material.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos
     this.material.uniforms.uMousePosTexture.value = FBOClass.getInstance().mousePosTexture
     this.material.uniforms.uCamPos.value = CameraClass.getInstance().camera.position
+    this.material.uniforms.uIsMobile.value = this.config.detector.isMobile
 
     this.updatePositions()
 
@@ -263,44 +261,69 @@ class ParticlesClass extends BaseClass {
 class ParticlesMaterial extends ShaderMaterial {
   constructor (config) {
     super(config)
+
     this.type = 'ShaderMaterial'
 
     this.uniforms = ShaderLib.standard.uniforms
 
-    this.uniforms.uTexture = { value: null }
-    this.uniforms.uMousePosTexture = { value: null }
-    this.uniforms.uTime = { value: 0.0 }
+    this.uniforms.uTexture = {
+      type: 't',
+      value: null
+    }
+
+    this.uniforms.uMousePosTexture = {
+      type: 't',
+      value: null
+    }
+
+    this.uniforms.uTime = {
+      type: 'f',
+      value: 0.0
+    }
+
     this.uniforms.positionTexture = {
       type: 't',
       value: null
     }
+
     this.uniforms.initialPositionTexture = {
       type: 't',
       value: null
     }
+
     this.uniforms.defaultPositionTexture = {
       type: 't',
       value: null
     }
+
     this.uniforms.uMousePos = {
       type: 'v2',
       value: new Vector2(0, 0)
     }
+
     this.uniforms.uPrevMousePos = {
       type: 'v2',
       value: new Vector2(0, 0)
     }
+
     this.uniforms.uNoiseMix = {
       type: 'f',
       value: 0.0
     }
+
     this.uniforms.uAspect = {
       type: 'f',
       value: 1.0
     }
+
     this.uniforms.uCamPos = {
       type: 'v3',
       value: new Vector3(0, 0, 0)
+    }
+
+    this.uniforms.uIsMobile = {
+      type: 'f',
+      value: 0.0
     }
 
     this.vertexShader = vertexShader

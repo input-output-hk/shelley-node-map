@@ -5,6 +5,7 @@ uniform sampler2D uTexture;
 uniform vec2 uTextureSize;
 uniform float uTime;
 uniform float uAspect;
+uniform float uIsMobile;
 
 varying vec2 vPUv;
 varying vec2 vUv;
@@ -34,20 +35,18 @@ void main() {
 
 	float border = 1.0;
 	float radius = 0.5;
+	if (uIsMobile == 1.0) {
+		border = 1.0;
+		radius = 0.6;
+	}
+
 	// float radius = 0.5 + (vCamDist * 0.005);
 	// float radius = 0.5 + (1.0-(uTextureSize.x+uTextureSize.y) * 0.001);
 	float dist = radius - distance(uv, vec2(0.5));
-	float t = smoothstep(0.0, border, dist);
+	float t = smoothstep(0.0, border, dist) * 2.0;
 
 	color.a *= t;
 
 	gl_FragColor = color;
-
-	// float contrast = 1.0;
-	// float brightness = 0.0;
-
-	// vec3 colorContrasted = color.rgb * contrast;
-	// vec3 bright = colorContrasted + vec3(brightness, brightness, brightness);
-	// gl_FragColor.rgb = bright;
-
+	
 }

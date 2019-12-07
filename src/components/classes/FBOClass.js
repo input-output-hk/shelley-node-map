@@ -12,9 +12,7 @@ import {
   Scene,
   PerspectiveCamera,
   Vector2,
-  OrthographicCamera,
-  Camera
-
+  OrthographicCamera
 } from 'three'
 
 /* ------------------------------------------
@@ -41,7 +39,6 @@ Shaders
 import PassThroughVert from '../../shaders/passThrough.vert'
 import MousePosFrag from '../../shaders/mousePos.frag'
 import MouseClass from './MouseClass'
-import PickerSceneClass from './PickerSceneClass'
 
 class FBOClass extends BaseClass {
   init ({
@@ -178,7 +175,6 @@ class FBOClass extends BaseClass {
     this.bloomPass.setSize(width, height)
     this.FXAAPass.material.uniforms[ 'resolution' ].value.x = 1 / (window.innerWidth)
     this.FXAAPass.material.uniforms[ 'resolution' ].value.y = 1 / (window.innerHeight)
-
     this.mousePosMaterial.uniforms.uAspect.value = CameraClass.getInstance().camera.aspect
 
     super.resize()
