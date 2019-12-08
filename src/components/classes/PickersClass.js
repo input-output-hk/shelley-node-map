@@ -101,6 +101,7 @@ class PickersClass extends BaseClass {
     this.geometry.attributes.scale.needsUpdate = true
     this.geometry.attributes.quaternion.needsUpdate = true
     this.geometry.attributes.id.needsUpdate = true
+    this.geometry.attributes.pickerColor.needsUpdate = true
   }
 
   addNode (data) {

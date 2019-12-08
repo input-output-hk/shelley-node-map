@@ -189,6 +189,7 @@ class Main extends mixin(EventEmitter, Component) {
   addNewNode (data) {
     this.data.push(data)
     MarkersClass.getInstance().addNode(data)
+    PickersClass.getInstance().addNode(data)
     PathsClass.getInstance().addNode(data)
 
     MarkersClass.getInstance().highlight(data)
