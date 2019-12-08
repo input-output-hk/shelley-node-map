@@ -53,6 +53,7 @@ class Main extends mixin(EventEmitter, Component) {
     this.clock = new Clock()
     this.modifiedQueue = []
     this.processingQueue = false
+    this.data = []
 
     this.state = {
       tooltipPos: new Vector2(),
@@ -98,7 +99,7 @@ class Main extends mixin(EventEmitter, Component) {
             })
           })
 
-          this.docRef.get().then(function (querySnapshot) {
+          this.docRef.orderBy('timestamp', 'desc').get().then(function (querySnapshot) {
             querySnapshot.forEach(function (doc) {
               coords.push(doc.data())
             })
@@ -145,7 +146,13 @@ class Main extends mixin(EventEmitter, Component) {
       this.buildScene()
       this.addEvents()
       this.animate()
+
+      this.highlightLatestNode()
     })
+  }
+
+  highlightLatestNode () {
+    this.emit('modified', this.data[0])
   }
 
   buildScene () {
