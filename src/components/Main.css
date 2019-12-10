@@ -18,6 +18,13 @@
     transition: opacity 0.3s;
     padding-left: 5px;
     margin-top: -5px;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; 
 }
 
 :local(.tooltipHide) {
