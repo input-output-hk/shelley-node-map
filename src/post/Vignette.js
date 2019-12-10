@@ -38,13 +38,29 @@ const Vignette = {
 
     varying vec2 vUv;
 
+    float random(vec2 co){
+      return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
+    }
+
+    // based on https://www.shadertoy.com/view/MslGR8
+    vec3 dithering( vec3 color ) {
+        //Calculate grid position
+        float grid_position = random( gl_FragCoord.xy );
+        //Shift the individual colors differently, thus making it even harder to see the dithering pattern
+        vec3 dither_shift_RGB = vec3( 0.25 / 255.0, -0.25 / 255.0, 0.25 / 255.0 );
+        //modify shift acording to grid position.
+        dither_shift_RGB = mix( 2.0 * dither_shift_RGB, -2.0 * dither_shift_RGB, grid_position );
+        //shift the color by dither_shift
+        return color + dither_shift_RGB;
+    }
+
     void main() {
 
         // Eskils vignette
 
     vec4 texel = texture2D( tDiffuse, vUv );
     vec2 uv = ( vUv - vec2( 0.5 ) ) * vec2( offset );
-    gl_FragColor = vec4( mix( texel.rgb, vec3( 1.0 - darkness ), dot( uv, uv ) ), texel.a );
+    gl_FragColor = vec4( dithering( mix( texel.rgb, vec3( 1.0 - darkness ), dot( uv, uv ) ) ), texel.a );
 
         /*
         // alternative version from glfx.js

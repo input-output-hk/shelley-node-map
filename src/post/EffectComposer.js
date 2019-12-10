@@ -1,4 +1,19 @@
-import * as THREE from 'three'
+import {
+  Vector2,
+  LinearFilter,
+  RGBAFormat,
+  WebGLRenderTarget,
+  Clock,
+  OrthographicCamera,
+  PlaneBufferGeometry,
+  Mesh,
+  ShaderMaterial,
+  UniformsUtils,
+  Color,
+  Vector3,
+  AdditiveBlending,
+  MeshBasicMaterial
+} from 'three'
 import CopyShader from './CopyShader'
 
 /**
@@ -10,18 +25,18 @@ const EffectComposer = function (renderer, renderTarget) {
 
   if (renderTarget === undefined) {
     var parameters = {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      format: THREE.RGBAFormat,
+      minFilter: LinearFilter,
+      magFilter: LinearFilter,
+      format: RGBAFormat,
       stencilBuffer: false
     }
 
-    var size = renderer.getSize(new THREE.Vector2())
+    var size = renderer.getSize(new Vector2())
     this._pixelRatio = renderer.getPixelRatio()
     this._width = size.width
     this._height = size.height
 
-    renderTarget = new THREE.WebGLRenderTarget(this._width * this._pixelRatio, this._height * this._pixelRatio, parameters)
+    renderTarget = new WebGLRenderTarget(this._width * this._pixelRatio, this._height * this._pixelRatio, parameters)
     renderTarget.texture.name = 'EffectComposer.rt1'
   } else {
     this._pixelRatio = 1
@@ -43,16 +58,16 @@ const EffectComposer = function (renderer, renderTarget) {
   // dependencies
 
   if (CopyShader === undefined) {
-    console.error('THREE.EffectComposer relies on THREE.CopyShader')
+    console.error('EffectComposer relies on CopyShader')
   }
 
   if (ShaderPass === undefined) {
-    console.error('THREE.EffectComposer relies on THREE.ShaderPass')
+    console.error('EffectComposer relies on ShaderPass')
   }
 
   this.copyPass = new ShaderPass(CopyShader)
 
-  this.clock = new THREE.Clock()
+  this.clock = new Clock()
 }
 
 Object.assign(EffectComposer.prototype, {
@@ -134,7 +149,7 @@ Object.assign(EffectComposer.prototype, {
 
   reset: function (renderTarget) {
     if (renderTarget === undefined) {
-      var size = this.renderer.getSize(new THREE.Vector2())
+      var size = this.renderer.getSize(new Vector2())
       this._pixelRatio = this.renderer.getPixelRatio()
       this._width = size.width
       this._height = size.height
@@ -201,11 +216,11 @@ Object.assign(Pass.prototype, {
 
 // Helper for passes that need to fill the viewport with a single quad.
 Pass.FullScreenQuad = (function () {
-  var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
-  var geometry = new THREE.PlaneBufferGeometry(2, 2)
+  var camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1)
+  var geometry = new PlaneBufferGeometry(2, 2)
 
   var FullScreenQuad = function (material) {
-    this._mesh = new THREE.Mesh(geometry, material)
+    this._mesh = new Mesh(geometry, material)
   }
 
   Object.defineProperty(FullScreenQuad.prototype, 'material', {
@@ -240,14 +255,14 @@ const ShaderPass = function (shader, textureID) {
 
   this.textureID = (textureID !== undefined) ? textureID : 'tDiffuse'
 
-  if (shader instanceof THREE.ShaderMaterial) {
+  if (shader instanceof ShaderMaterial) {
     this.uniforms = shader.uniforms
 
     this.material = shader
   } else if (shader) {
-    this.uniforms = THREE.UniformsUtils.clone(shader.uniforms)
+    this.uniforms = UniformsUtils.clone(shader.uniforms)
 
-    this.material = new THREE.ShaderMaterial({
+    this.material = new ShaderMaterial({
 
       defines: Object.assign({}, shader.defines),
       uniforms: this.uniforms,
@@ -276,7 +291,7 @@ ShaderPass.prototype = Object.assign(Object.create(Pass.prototype), {
       this.fsQuad.render(renderer)
     } else {
       renderer.setRenderTarget(writeBuffer)
-      // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+      // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/js/pull/15571#issuecomment-465669600
       if (this.clear) renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil)
       this.fsQuad.render(renderer)
     }
@@ -423,7 +438,7 @@ RenderPass.prototype = Object.assign(Object.create(Pass.prototype), {
 
     renderer.setRenderTarget(this.renderToScreen ? null : readBuffer)
 
-    // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+    // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/js/pull/15571#issuecomment-465669600
     if (this.clear) renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil)
     renderer.render(this.scene, this.camera)
 
@@ -444,16 +459,16 @@ RenderPass.prototype = Object.assign(Object.create(Pass.prototype), {
 const TexturePass = function (map, opacity) {
   Pass.call(this)
 
-  if (CopyShader === undefined) { console.error('THREE.TexturePass relies on THREE.CopyShader') }
+  if (CopyShader === undefined) { console.error('TexturePass relies on CopyShader') }
 
   var shader = CopyShader
 
   this.map = map
   this.opacity = (opacity !== undefined) ? opacity : 1.0
 
-  this.uniforms = THREE.UniformsUtils.clone(shader.uniforms)
+  this.uniforms = UniformsUtils.clone(shader.uniforms)
 
-  this.material = new THREE.ShaderMaterial({
+  this.material = new ShaderMaterial({
 
     uniforms: this.uniforms,
     vertexShader: shader.vertexShader,
@@ -507,7 +522,7 @@ const LuminosityHighPassShader = {
     'tDiffuse': { type: 't', value: null },
     'luminosityThreshold': { type: 'f', value: 1.0 },
     'smoothWidth': { type: 'f', value: 1.0 },
-    'defaultColor': { type: 'c', value: new THREE.Color(0x000000) },
+    'defaultColor': { type: 'c', value: new Color(0x000000) },
     'defaultOpacity': { type: 'f', value: 0.0 }
 
   },
@@ -569,32 +584,32 @@ const UnrealBloomPass = function (resolution, strength, radius, threshold) {
   this.strength = (strength !== undefined) ? strength : 1
   this.radius = radius
   this.threshold = threshold
-  this.resolution = (resolution !== undefined) ? new THREE.Vector2(resolution.x, resolution.y) : new THREE.Vector2(256, 256)
+  this.resolution = (resolution !== undefined) ? new Vector2(resolution.x, resolution.y) : new Vector2(256, 256)
 
   // create color only once here, reuse it later inside the render function
-  this.clearColor = new THREE.Color(0, 0, 0)
+  this.clearColor = new Color(0, 0, 0)
 
   // render targets
-  var pars = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat }
+  var pars = { minFilter: LinearFilter, magFilter: LinearFilter, format: RGBAFormat }
   this.renderTargetsHorizontal = []
   this.renderTargetsVertical = []
   this.nMips = 5
   var resx = Math.round(this.resolution.x / 2)
   var resy = Math.round(this.resolution.y / 2)
 
-  this.renderTargetBright = new THREE.WebGLRenderTarget(resx, resy, pars)
+  this.renderTargetBright = new WebGLRenderTarget(resx, resy, pars)
   this.renderTargetBright.texture.name = 'UnrealBloomPass.bright'
   this.renderTargetBright.texture.generateMipmaps = false
 
   for (var i = 0; i < this.nMips; i++) {
-    var renderTargetHorizonal = new THREE.WebGLRenderTarget(resx, resy, pars)
+    var renderTargetHorizonal = new WebGLRenderTarget(resx, resy, pars)
 
     renderTargetHorizonal.texture.name = 'UnrealBloomPass.h' + i
     renderTargetHorizonal.texture.generateMipmaps = false
 
     this.renderTargetsHorizontal.push(renderTargetHorizonal)
 
-    var renderTargetVertical = new THREE.WebGLRenderTarget(resx, resy, pars)
+    var renderTargetVertical = new WebGLRenderTarget(resx, resy, pars)
 
     renderTargetVertical.texture.name = 'UnrealBloomPass.v' + i
     renderTargetVertical.texture.generateMipmaps = false
@@ -608,15 +623,15 @@ const UnrealBloomPass = function (resolution, strength, radius, threshold) {
 
   // luminosity high pass material
 
-  if (LuminosityHighPassShader === undefined) { console.error('THREE.UnrealBloomPass relies on LuminosityHighPassShader') }
+  if (LuminosityHighPassShader === undefined) { console.error('UnrealBloomPass relies on LuminosityHighPassShader') }
 
   var highPassShader = LuminosityHighPassShader
-  this.highPassUniforms = THREE.UniformsUtils.clone(highPassShader.uniforms)
+  this.highPassUniforms = UniformsUtils.clone(highPassShader.uniforms)
 
   this.highPassUniforms[ 'luminosityThreshold' ].value = threshold
   this.highPassUniforms[ 'smoothWidth' ].value = 0.01
 
-  this.materialHighPassFilter = new THREE.ShaderMaterial({
+  this.materialHighPassFilter = new ShaderMaterial({
     uniforms: this.highPassUniforms,
     vertexShader: highPassShader.vertexShader,
     fragmentShader: highPassShader.fragmentShader,
@@ -632,7 +647,7 @@ const UnrealBloomPass = function (resolution, strength, radius, threshold) {
   for (var i = 0; i < this.nMips; i++) {
     this.separableBlurMaterials.push(this.getSeperableBlurMaterial(kernelSizeArray[ i ]))
 
-    this.separableBlurMaterials[ i ].uniforms[ 'texSize' ].value = new THREE.Vector2(resx, resy)
+    this.separableBlurMaterials[ i ].uniforms[ 'texSize' ].value = new Vector2(resx, resy)
 
     resx = Math.round(resx / 2)
 
@@ -652,25 +667,25 @@ const UnrealBloomPass = function (resolution, strength, radius, threshold) {
 
   var bloomFactors = [ 1.0, 0.8, 0.6, 0.4, 0.2 ]
   this.compositeMaterial.uniforms[ 'bloomFactors' ].value = bloomFactors
-  this.bloomTintColors = [ new THREE.Vector3(1, 1, 1), new THREE.Vector3(1, 1, 1), new THREE.Vector3(1, 1, 1),
-							 new THREE.Vector3(1, 1, 1), new THREE.Vector3(1, 1, 1) ]
+  this.bloomTintColors = [ new Vector3(1, 1, 1), new Vector3(1, 1, 1), new Vector3(1, 1, 1),
+							 new Vector3(1, 1, 1), new Vector3(1, 1, 1) ]
   this.compositeMaterial.uniforms[ 'bloomTintColors' ].value = this.bloomTintColors
 
   // copy material
   if (CopyShader === undefined) {
-    console.error('THREE.UnrealBloomPass relies on THREE.CopyShader')
+    console.error('UnrealBloomPass relies on CopyShader')
   }
 
   var copyShader = CopyShader
 
-  this.copyUniforms = THREE.UniformsUtils.clone(copyShader.uniforms)
+  this.copyUniforms = UniformsUtils.clone(copyShader.uniforms)
   this.copyUniforms[ 'opacity' ].value = 1.0
 
-  this.materialCopy = new THREE.ShaderMaterial({
+  this.materialCopy = new ShaderMaterial({
     uniforms: this.copyUniforms,
     vertexShader: copyShader.vertexShader,
     fragmentShader: copyShader.fragmentShader,
-    blending: THREE.AdditiveBlending,
+    blending: AdditiveBlending,
     depthTest: false,
     depthWrite: false,
     transparent: true
@@ -679,10 +694,10 @@ const UnrealBloomPass = function (resolution, strength, radius, threshold) {
   this.enabled = true
   this.needsSwap = false
 
-  this.oldClearColor = new THREE.Color()
+  this.oldClearColor = new Color()
   this.oldClearAlpha = 1
 
-  this.basic = new THREE.MeshBasicMaterial()
+  this.basic = new MeshBasicMaterial()
 
   this.fsQuad = new Pass.FullScreenQuad(null)
 }
@@ -713,7 +728,7 @@ UnrealBloomPass.prototype = Object.assign(Object.create(Pass.prototype), {
       this.renderTargetsHorizontal[ i ].setSize(resx, resy)
       this.renderTargetsVertical[ i ].setSize(resx, resy)
 
-      this.separableBlurMaterials[ i ].uniforms[ 'texSize' ].value = new THREE.Vector2(resx, resy)
+      this.separableBlurMaterials[ i ].uniforms[ 'texSize' ].value = new Vector2(resx, resy)
 
       resx = Math.round(resx / 2)
       resy = Math.round(resy / 2)
@@ -806,7 +821,7 @@ UnrealBloomPass.prototype = Object.assign(Object.create(Pass.prototype), {
   },
 
   getSeperableBlurMaterial: function (kernelRadius) {
-    return new THREE.ShaderMaterial({
+    return new ShaderMaterial({
 
       defines: {
         'KERNEL_RADIUS': kernelRadius,
@@ -815,8 +830,8 @@ UnrealBloomPass.prototype = Object.assign(Object.create(Pass.prototype), {
 
       uniforms: {
         'colorTexture': { value: null },
-        'texSize': { value: new THREE.Vector2(0.5, 0.5) },
-        'direction': { value: new THREE.Vector2(0.5, 0.5) }
+        'texSize': { value: new Vector2(0.5, 0.5) },
+        'direction': { value: new Vector2(0.5, 0.5) }
       },
 
       vertexShader:
@@ -856,7 +871,7 @@ UnrealBloomPass.prototype = Object.assign(Object.create(Pass.prototype), {
   },
 
   getCompositeMaterial: function (nMips) {
-    return new THREE.ShaderMaterial({
+    return new ShaderMaterial({
 
       defines: {
         'NUM_MIPS': nMips
@@ -912,7 +927,7 @@ UnrealBloomPass.prototype = Object.assign(Object.create(Pass.prototype), {
 
 })
 
-UnrealBloomPass.BlurDirectionX = new THREE.Vector2(1.0, 0.0)
-UnrealBloomPass.BlurDirectionY = new THREE.Vector2(0.0, 1.0)
+UnrealBloomPass.BlurDirectionX = new Vector2(1.0, 0.0)
+UnrealBloomPass.BlurDirectionY = new Vector2(0.0, 1.0)
 
 export { EffectComposer, ShaderPass, RenderPass, UnrealBloomPass, TexturePass }

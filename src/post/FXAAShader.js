@@ -1,4 +1,6 @@
-import * as THREE from 'three'
+import {
+  Vector2
+} from 'three'
 
 /**
  * @author alteredq / http://alteredqualia.com/
@@ -15,7 +17,7 @@ const FXAAShader = {
   uniforms: {
 
     'tDiffuse': { value: null },
-    'resolution': { value: new THREE.Vector2(1 / 1024, 1 / 512) }
+    'resolution': { value: new Vector2(1 / 1024, 1 / 512) }
 
   },
 
@@ -25,8 +27,8 @@ const FXAAShader = {
 
     'void main() {',
 
-    '	vUv = uv;',
-    '	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
+    'vUv = uv;',
+    'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
 
     '}'
 
