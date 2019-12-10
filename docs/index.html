@@ -13,8 +13,27 @@
         margin: 0;
         padding: 0;
       }
+
       html {
         background: #000;
+      }
+
+      .loaded {
+        opacity: 0.0;
+        filter: blur(2ex);
+        transition: opacity 3s, filter 3s, visibility 3s;
+        visibility: hidden;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        position: absolute;  
+      }
+
+      .root {
+        height: 100%;
+        /* position: relative; */
       }
     </style>
   </head>

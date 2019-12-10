@@ -4,8 +4,12 @@
 import React, { Component } from 'react'
 import {
   Clock,
-  Vector2
+  Vector2,
+  Color
 } from 'three'
+
+import { Preloader } from '@input-output-hk/react-preloader'
+
 import EventEmitter from 'eventemitter3'
 import mixin from 'mixin'
 import TWEEN from 'tween.js'
@@ -59,7 +63,8 @@ class Main extends mixin(EventEmitter, Component) {
       tooltipPos: new Vector2(),
       tooltipCountry: null,
       tooltipCity: null,
-      tooltipHide: true
+      tooltipHide: true,
+      loading: true
     }
   }
 
@@ -146,6 +151,10 @@ class Main extends mixin(EventEmitter, Component) {
       this.buildScene()
       this.addEvents()
       this.animate()
+
+      this.setState({
+        loading: false
+      })
 
       this.highlightLatestNode()
     })
@@ -361,6 +370,7 @@ class Main extends mixin(EventEmitter, Component) {
 
     return (
       <div className={styles.container}>
+        <Preloader className={this.state.loading ? 'loading' : 'loaded'} />
         <canvas width={this.width} height={this.height} id={this.config.scene.canvasID} />
         <div className={className} style={tooltipStyle}>
           <p>{this.state.tooltipCity}</p>

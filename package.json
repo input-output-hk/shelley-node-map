@@ -82,6 +82,7 @@
   "author": "Scott Darby <info@scottdarby.com>",
   "license": "MIT",
   "dependencies": {
+    "@input-output-hk/react-preloader": "^1.0.5",
     "d3-geo": "^1.11.9",
     "deep-assign": "^3.0.0",
     "firebase": "^7.5.0",
