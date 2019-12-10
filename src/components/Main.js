@@ -255,11 +255,11 @@ class Main extends mixin(EventEmitter, Component) {
 
       this.showGeoData(data)
 
-      console.log('Added: ', data)
+      // console.log('Added: ', data)
     })
 
     this.on('removed', (data) => {
-      console.log('Removed: ', data)
+      // console.log('Removed: ', data)
     })
   }
 
@@ -311,7 +311,7 @@ class Main extends mixin(EventEmitter, Component) {
 
     MarkersClass.getInstance().highlight(data)
       .then(() => {
-        console.log('Updated: ', data)
+        // console.log('Updated: ', data)
         this.processingQueue = false
         this.processModifiedQueue()
       })
