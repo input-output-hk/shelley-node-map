@@ -21,6 +21,7 @@
 }
 
 :local(.tooltipHide) {
+    transition: opacity 0.3s;
     composes: tooltip;
     opacity: 0.0;
 }
