@@ -7,9 +7,9 @@ import {
   ShaderLib,
   Color,
   Object3D,
-  MeshLambertMaterial,
   Vector3,
-  Vector2
+  Vector2,
+  MeshBasicMaterial
 } from 'three'
 
 import TWEEN from 'tween.js'
@@ -224,12 +224,12 @@ class MarkersClass extends BaseClass {
   }
 }
 
-class MarkersMaterial extends MeshLambertMaterial {
+class MarkersMaterial extends MeshBasicMaterial {
   constructor (config) {
     super(config)
     this.type = 'ShaderMaterial'
 
-    this.uniforms = ShaderLib.lambert.uniforms
+    this.uniforms = ShaderLib.basic.uniforms
 
     this.uniforms.uTime = {
       type: 'f',

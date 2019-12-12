@@ -7,8 +7,6 @@ import {
   Vector2
 } from 'three'
 
-import { Preloader } from '@input-output-hk/react-preloader'
-
 import EventEmitter from 'eventemitter3'
 import mixin from 'mixin'
 import TWEEN from 'tween.js'
@@ -62,6 +60,7 @@ class Main extends mixin(EventEmitter, Component) {
       tooltipPos: new Vector2(),
       tooltipCountry: null,
       tooltipCity: null,
+      tooltipHide: true,
       loading: true
     }
   }
@@ -171,7 +170,7 @@ class Main extends mixin(EventEmitter, Component) {
     IcosaSceneClass.getInstance().scene.add(PathsClass.getInstance().mesh)
 
     PickerSceneClass.getInstance().scene.add(PickersClass.getInstance().mesh)
-    PickerSceneClass.getInstance().scene.add(IcosahedronClass.getInstance().mesh3)
+    // PickerSceneClass.getInstance().scene.add(IcosahedronClass.getInstance().mesh3)
 
     GlobeSceneClass.getInstance().scene.add(GlobeClass.getInstance().mesh)
   }
@@ -242,11 +241,15 @@ class Main extends mixin(EventEmitter, Component) {
     })
 
     PickersClass.getInstance().on('nodeMouseOver', (data) => {
+      clearTimeout(this.hoverTimeout)
       this.showGeoData(data)
     })
 
-    // PickersClass.getInstance().on('nodeMouseOut', () => {
-    // })
+    PickersClass.getInstance().on('nodeMouseOut', () => {
+      this.setState({
+        tooltipHide: true
+      })
+    })
 
     // on node data changes
     this.on('modified', (data) => {
@@ -280,9 +283,16 @@ class Main extends mixin(EventEmitter, Component) {
       data.country = 'Unknown'
     }
 
+    this.hoverTimeout = setTimeout(() => {
+      this.setState({
+        tooltipHide: true
+      })
+    }, 4000)
+
     this.setState({
       tooltipCountry: data.country,
       tooltipCity: data.city,
+      tooltipHide: false,
       tooltipLastBlockTime: new Intl.DateTimeFormat('default', {
         year: '2-digit',
         month: 'numeric',
@@ -360,9 +370,12 @@ class Main extends mixin(EventEmitter, Component) {
 
     let className = styles.tooltip
 
+    if (this.state.tooltipHide) {
+      className = styles.tooltipHide
+    }
+
     return (
       <div className={styles.container}>
-        <Preloader className={this.state.loading ? 'loading' : 'loaded'} />
         <canvas width={this.width} height={this.height} id={this.config.scene.canvasID} />
         <div className={className} style={tooltipStyle}>
           <p>{this.state.tooltipCity}</p>
