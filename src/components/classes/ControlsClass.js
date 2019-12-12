@@ -6,7 +6,7 @@ import BaseClass from './BaseClass'
 
 class ControlsClass extends BaseClass {
   init () {
-    this.controls = new OrbitControls(CameraClass.getInstance().camera, RendererClass.getInstance().renderer.domElement)
+    this.controls = new OrbitControls(CameraClass.getInstance().camera, RendererClass.getInstance().renderer.domElement.parentNode)
     this.controls.minDistance = 2.4
     this.controls.maxDistance = 8
     this.controls.enablePan = false

@@ -4,8 +4,7 @@
 import React, { Component } from 'react'
 import {
   Clock,
-  Vector2,
-  Color
+  Vector2
 } from 'three'
 
 import { Preloader } from '@input-output-hk/react-preloader'
@@ -63,7 +62,6 @@ class Main extends mixin(EventEmitter, Component) {
       tooltipPos: new Vector2(),
       tooltipCountry: null,
       tooltipCity: null,
-      tooltipHide: true,
       loading: true
     }
   }
@@ -247,11 +245,8 @@ class Main extends mixin(EventEmitter, Component) {
       this.showGeoData(data)
     })
 
-    PickersClass.getInstance().on('nodeMouseOut', () => {
-      this.setState({
-        tooltipHide: true
-      })
-    })
+    // PickersClass.getInstance().on('nodeMouseOut', () => {
+    // })
 
     // on node data changes
     this.on('modified', (data) => {
@@ -261,6 +256,10 @@ class Main extends mixin(EventEmitter, Component) {
 
     this.on('added', (data) => {
       this.addNewNode(data)
+
+      if (PickersClass.getInstance().isHovering) {
+        return
+      }
 
       this.showGeoData(data)
 
@@ -281,16 +280,9 @@ class Main extends mixin(EventEmitter, Component) {
       data.country = 'Unknown'
     }
 
-    setTimeout(() => {
-      this.setState({
-        tooltipHide: true
-      })
-    }, 4000)
-
     this.setState({
       tooltipCountry: data.country,
       tooltipCity: data.city,
-      tooltipHide: false,
       tooltipLastBlockTime: new Intl.DateTimeFormat('default', {
         year: '2-digit',
         month: 'numeric',
@@ -304,6 +296,10 @@ class Main extends mixin(EventEmitter, Component) {
   }
 
   processModifiedQueue () {
+    if (PickersClass.getInstance().isHovering) {
+      return
+    }
+
     if (this.modifiedQueue.length === 0) {
       return
     }
@@ -363,10 +359,6 @@ class Main extends mixin(EventEmitter, Component) {
     }
 
     let className = styles.tooltip
-
-    if (this.state.tooltipHide) {
-      className = styles.tooltipHide
-    }
 
     return (
       <div className={styles.container}>

@@ -8,8 +8,7 @@ import {
   Object3D,
   ShaderMaterial,
   WebGLRenderTarget,
-  LinearFilter,
-  Vector3
+  LinearFilter
 } from 'three'
 
 import BaseClass from './BaseClass'
@@ -31,6 +30,7 @@ class PickersClass extends BaseClass {
     this.lastHoveredID = -1
     this.lastSelectedID = -1
     this.hoveredIP = ''
+    this.isHovering = false
 
     this.pickingTexture = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
     this.pickingTexture.texture.minFilter = LinearFilter
@@ -144,8 +144,12 @@ class PickersClass extends BaseClass {
 
         this.emit('nodeMouseOver', this.hoveredData)
 
+        this.isHovering = true
+
         document.body.style.cursor = 'pointer'
       } else {
+        this.isHovering = false
+
         this.emit('nodeMouseOut', {})
 
         // MarkersClass.getInstance().setSelectionRef(new Vector3(0, 0, 0))
