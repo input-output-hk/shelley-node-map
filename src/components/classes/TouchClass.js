@@ -2,16 +2,20 @@ import {
   Vector2
 } from 'three'
 
-import { lerp } from '../../helpers/math'
-
 import BaseClass from './BaseClass'
+import RendererClass from './RendererClass'
 
 class TouchClass extends BaseClass {
   init () {
     this.touchPos = new Vector2()
+    this.prevTouchPos = new Vector2(0, 0)
     this.normalizedTouchPos = new Vector2()
-    this.smoothedTouchPos = new Vector2()
-    super.init()
+
+    this.touchDelta = new Vector2(0, 0)
+    this.movement = new Vector2()
+    this.touchPos = new Vector2()
+    this.normalizedTouchPos = new Vector2()
+    this.prevNormalizedTouchPos = new Vector2()
   }
 
   onTouchMove (e) {
@@ -21,17 +25,28 @@ class TouchClass extends BaseClass {
       e = e.touches[0]
     }
 
-    this.touchPos.x = e.clientX
-    this.touchPos.y = e.clientY
+    this.prevNormalizedTouchPos.x = this.normalizedTouchPos.x
+    this.prevNormalizedTouchPos.y = this.normalizedTouchPos.y
 
-    this.normalizedTouchPos.x = e.clientX
-    this.normalizedTouchPos.y = window.innerHeight - (e.clientY)
+    this.prevTouchPos.x = this.touchPos.x
+    this.prevTouchPos.y = this.touchPos.y
+
+    this.touchPos.x = e.clientX - RendererClass.getInstance().renderer.domElement.offsetLeft
+    this.touchPos.y = e.clientY - RendererClass.getInstance().renderer.domElement.offsetTop
+
+    this.touchDelta = this.touchPos.clone().sub(this.prevTouchPos)
+
+    this.movement.x = this.touchDelta.x
+    this.movement.y = this.touchDelta.y
+
+    const x = e.clientX - RendererClass.getInstance().renderer.domElement.offsetLeft
+    const y = e.clientY - RendererClass.getInstance().renderer.domElement.offsetTop
+
+    this.normalizedTouchPos.x = x / RendererClass.getInstance().renderer.domElement.width
+    this.normalizedTouchPos.y = 1 - y / RendererClass.getInstance().renderer.domElement.height
   }
 
   renderFrame ({ dt } = {}) {
-    this.smoothedTouchPos.x = lerp(this.smoothedTouchPos.x, this.normalizedTouchPos.x, dt * 2)
-    this.smoothedTouchPos.y = lerp(this.smoothedTouchPos.y, this.normalizedTouchPos.y, dt * 2)
-
     super.renderFrame()
   }
 }

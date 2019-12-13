@@ -41,6 +41,7 @@ import PassThroughVert from '../../shaders/passThrough.vert'
 import MousePosFrag from '../../shaders/mousePos.frag'
 import MouseClass from './MouseClass'
 import PickerSceneClass from './PickerSceneClass'
+import TouchClass from './TouchClass'
 
 class FBOClass extends BaseClass {
   init ({
@@ -181,8 +182,8 @@ class FBOClass extends BaseClass {
     this.RTParticles.setSize(width, height)
     this.composer.setSize(width, height)
     this.bloomPass.setSize(width, height)
-    this.FXAAPass.material.uniforms[ 'resolution' ].value.x = 1 / (window.innerWidth)
-    this.FXAAPass.material.uniforms[ 'resolution' ].value.y = 1 / (window.innerHeight)
+    this.FXAAPass.material.uniforms[ 'resolution' ].value.x = 1 / (width)
+    this.FXAAPass.material.uniforms[ 'resolution' ].value.y = 1 / (height)
     this.mousePosMaterial.uniforms.uAspect.value = CameraClass.getInstance().camera.aspect
 
     super.resize()
@@ -208,8 +209,13 @@ class FBOClass extends BaseClass {
     this.composer.render()
 
     // mouse position
-    this.mousePosMaterial.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
-    this.mousePosMaterial.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos
+    if (this.config.detector.isMobile) {
+      this.mousePosMaterial.uniforms.uMousePos.value = TouchClass.getInstance().normalizedTouchPos
+      this.mousePosMaterial.uniforms.uPrevMousePos.value = TouchClass.getInstance().prevNormalizedTouchPos
+    } else {
+      this.mousePosMaterial.uniforms.uMousePos.value = MouseClass.getInstance().normalizedMousePos
+      this.mousePosMaterial.uniforms.uPrevMousePos.value = MouseClass.getInstance().prevNormalizedMousePos
+    }
 
     let inputPositionRenderTarget = this.mousePosRT1
     this.outputPositionRenderTarget = this.mousePosRT2

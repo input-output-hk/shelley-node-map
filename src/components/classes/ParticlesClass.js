@@ -19,6 +19,7 @@ import {
 
 import BaseClass from './BaseClass'
 import MouseClass from './MouseClass'
+import TouchClass from './TouchClass'
 
 // shaders
 import fragmentShader from '../../shaders/particles.frag'
@@ -240,8 +241,14 @@ class ParticlesClass extends BaseClass {
 
     this.updatePositions()
 
-    if (Math.abs(MouseClass.getInstance().mouseDelta.x) + Math.abs(MouseClass.getInstance().mouseDelta.y) > 1.0) {
-      this.mouseMoved = 1.0
+    if (this.config.detector.isMobile) {
+      if (Math.abs(TouchClass.getInstance().touchDelta.x) + Math.abs(TouchClass.getInstance().touchDelta.y) > 1.0) {
+        this.mouseMoved = 1.0
+      }
+    } else {
+      if (Math.abs(MouseClass.getInstance().mouseDelta.x) + Math.abs(MouseClass.getInstance().mouseDelta.y) > 1.0) {
+        this.mouseMoved = 1.0
+      }
     }
 
     if (this.mouseMoved > 0) {
