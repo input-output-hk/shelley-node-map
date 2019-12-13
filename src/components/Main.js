@@ -10,7 +10,6 @@ import {
 import EventEmitter from 'eventemitter3'
 import mixin from 'mixin'
 import TWEEN from 'tween.js'
-
 import firebase from 'firebase/app'
 import 'firebase/firestore'
 import 'firebase/auth'
@@ -170,7 +169,6 @@ class Main extends mixin(EventEmitter, Component) {
     IcosaSceneClass.getInstance().scene.add(PathsClass.getInstance().mesh)
 
     PickerSceneClass.getInstance().scene.add(PickersClass.getInstance().mesh)
-    // PickerSceneClass.getInstance().scene.add(IcosahedronClass.getInstance().mesh3)
 
     GlobeSceneClass.getInstance().scene.add(GlobeClass.getInstance().mesh)
   }
@@ -322,7 +320,9 @@ class Main extends mixin(EventEmitter, Component) {
 
     const data = this.modifiedQueue.shift()
 
-    this.showGeoData(data)
+    if (!PickersClass.getInstance().isHovering) {
+      this.showGeoData(data)
+    }
 
     MarkersClass.getInstance().highlight(data)
       .then(() => {

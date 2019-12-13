@@ -33,13 +33,6 @@ class IcosahedronClass extends BaseClass {
       side: BackSide
     })
 
-    this.mesh3 = this.mesh.clone()
-    this.mesh3.scale.set(0.98, 0.98, 0.98)
-    this.mesh3.material = new MeshBasicMaterial({
-      color: new Color(0x000000),
-      side: BackSide
-    })
-
     super.init()
   }
 }

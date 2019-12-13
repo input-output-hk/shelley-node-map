@@ -40,6 +40,7 @@ Shaders
 import PassThroughVert from '../../shaders/passThrough.vert'
 import MousePosFrag from '../../shaders/mousePos.frag'
 import MouseClass from './MouseClass'
+import PickerSceneClass from './PickerSceneClass'
 
 class FBOClass extends BaseClass {
   init ({

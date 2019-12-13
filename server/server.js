@@ -39,7 +39,9 @@ watch(filePath, { recursive: true }, function (evt, name) {
 
           // check if geodata is in db
           let docRef = firebaseDB.collection(config.collection).doc(ipAddress)
-          let snapshot = await docRef.get()
+          let snapshot = await docRef.get().catch(err => {
+            console.log(err)
+          })
 
           if (!snapshot.exists) {
           // get lat/long for ip
@@ -83,9 +85,14 @@ watch(filePath, { recursive: true }, function (evt, name) {
               timestamp: admin.firestore.Timestamp.fromDate(new Date())
             }
 
+            console.log(saveData)
+
             docRef.set(saveData, { merge: true }).then(() => {
               console.log('Updated node timestamp for IP: ' + ipAddress)
             })
+              .catch(error => {
+                console.log(error)
+              })
           }
         }
       } catch (error) {
