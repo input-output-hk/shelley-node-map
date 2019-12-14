@@ -85,8 +85,6 @@ watch(filePath, { recursive: true }, function (evt, name) {
               timestamp: admin.firestore.Timestamp.fromDate(new Date())
             }
 
-            console.log(saveData)
-
             docRef.set(saveData, { merge: true }).then(() => {
               console.log('Updated node timestamp for IP: ' + ipAddress)
             })

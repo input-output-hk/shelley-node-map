@@ -199,11 +199,10 @@ class Main extends mixin(EventEmitter, Component) {
 
   addNewNode (data) {
     this.data.push(data)
+    this.addToModifiedQueue(data)
     MarkersClass.getInstance().addNode(data)
     PickersClass.getInstance().addNode(data)
     PathsClass.getInstance().addNode(data)
-
-    MarkersClass.getInstance().highlight(data)
   }
 
   addEvents () {
@@ -258,11 +257,7 @@ class Main extends mixin(EventEmitter, Component) {
     this.on('added', (data) => {
       this.addNewNode(data)
 
-      if (PickersClass.getInstance().isHovering) {
-        return
-      }
-
-      this.showGeoData(data)
+      this.processModifiedQueue()
 
       // console.log('Added: ', data)
     })
