@@ -1,6 +1,5 @@
 import {
-  Scene,
-  Color
+  Scene
 } from 'three'
 
 import BaseClass from './BaseClass'
@@ -8,7 +7,7 @@ import BaseClass from './BaseClass'
 class IcosaSceneClass extends BaseClass {
   init () {
     this.scene = new Scene()
-    this.scene.background = new Color(this.config.scene.bgColor)
+    this.scene.background = this.config.scene.bgColor
 
     super.init()
   }

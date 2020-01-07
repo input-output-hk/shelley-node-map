@@ -1,6 +1,7 @@
 import {
   HalfFloatType,
-  FloatType
+  FloatType,
+  Color
 } from 'three'
 
 import Detector from '../libs/Detector'
@@ -29,18 +30,20 @@ class Config {
         fullScreen: true,
         width: window.innerWidth,
         height: window.innerHeight,
-        bgColor: 0x000000,
+        bgColor: new Color(0x000000),
         canvasID: 'stage', // ID of webgl canvas element
         ambientLightColor: 0xffffff,
         ambientLightIntensity: 1.0,
         sphereRadius: 2,
         globeRadius: 2.1,
-        particleLifeMax: 1000
+        particleLifeMax: 1000,
+        showAnnotations: true
       },
       post: {
         enabled: false,
         vignette: true,
-        bloom: true
+        blendLighten: true,
+        blendColor: new Color(0x000000) // 121326
       },
       camera: {
         fov: 60,

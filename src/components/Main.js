@@ -4,7 +4,8 @@
 import React, { Component } from 'react'
 import {
   Clock,
-  Vector2
+  Vector2,
+  Color
 } from 'three'
 
 import EventEmitter from 'eventemitter3'
@@ -13,6 +14,7 @@ import TWEEN from 'tween.js'
 import firebase from 'firebase/app'
 import 'firebase/firestore'
 import 'firebase/auth'
+import { getUrlParameter } from '../helpers/utility'
 
 /* ------------------------------------------
 Config
@@ -114,7 +116,21 @@ class Main extends mixin(EventEmitter, Component) {
     })
   }
 
+  setConfigFromURLParams () {
+    const blendColor = parseInt(getUrlParameter('blendColor'))
+    if (!isNaN(blendColor)) {
+      this.config.post.blendColor = new Color(blendColor)
+    }
+
+    const showAnnotations = parseInt(getUrlParameter('showAnnotations'))
+    if (!isNaN(showAnnotations)) {
+      this.config.scene.showAnnotations = !!showAnnotations
+    }
+  }
+
   initStage () {
+    this.setConfigFromURLParams()
+
     GlobeSceneClass.getInstance().init()
     IcosaSceneClass.getInstance().init()
     PickerSceneClass.getInstance().init()
@@ -366,6 +382,10 @@ class Main extends mixin(EventEmitter, Component) {
     let className = styles.tooltip
 
     if (this.state.tooltipHide) {
+      className = styles.tooltipHide
+    }
+
+    if (this.config.scene.showAnnotations === false) {
       className = styles.tooltipHide
     }
 

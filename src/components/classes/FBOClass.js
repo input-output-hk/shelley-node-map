@@ -21,7 +21,7 @@ import {
 import { EffectComposer, ShaderPass, RenderPass, UnrealBloomPass } from '../../post/EffectComposer'
 import BrightnessContrastShader from '../../post/BrightnessContrast'
 import FXAAShader from '../../post/FXAAShader'
-import FilmShader from '../../post/Film'
+import BlendShader from '../../post/BlendLighten'
 import VignetteShader from '../../post/Vignette'
 
 /* ------------------------------------------
@@ -40,7 +40,7 @@ Shaders
 import PassThroughVert from '../../shaders/passThrough.vert'
 import MousePosFrag from '../../shaders/mousePos.frag'
 import MouseClass from './MouseClass'
-import PickerSceneClass from './PickerSceneClass'
+
 import TouchClass from './TouchClass'
 
 class FBOClass extends BaseClass {
@@ -70,21 +70,25 @@ class FBOClass extends BaseClass {
     this.BrightnessContrastPass = new ShaderPass(BrightnessContrastShader)
     this.composer.addPass(this.BrightnessContrastPass)
 
-    this.bloomPass = new UnrealBloomPass(new Vector2(this.width, this.height), 1.0, 2, 0.1) // 1.0, 9, 0.5, 512);
+    this.bloomPass = new UnrealBloomPass(new Vector2(this.width, this.height), 0.8, 2, 0.1) // 1.0, 9, 0.5, 512);
     this.composer.addPass(this.bloomPass)
 
-    this.VignettePass = new ShaderPass(VignetteShader)
-    this.composer.addPass(this.VignettePass)
+    if (this.config.post.vignette) {
+      this.VignettePass = new ShaderPass(VignetteShader)
+      this.composer.addPass(this.VignettePass)
+    }
+
+    if (this.config.post.blendLighten) {
+      this.BlendPass = new ShaderPass(BlendShader)
+      this.BlendPass.material.uniforms['blendColor'].value = this.config.post.blendColor
+      this.composer.addPass(this.BlendPass)
+    }
 
     this.FXAAPass = new ShaderPass(FXAAShader)
-    this.FXAAPass.material.uniforms[ 'resolution' ].value.x = 1 / (window.innerWidth)
-    this.FXAAPass.material.uniforms[ 'resolution' ].value.y = 1 / (window.innerHeight)
-    // this.FXAAPass.renderToScreen = true
+    this.FXAAPass.material.uniforms['resolution'].value.x = 1 / (window.innerWidth)
+    this.FXAAPass.material.uniforms['resolution'].value.y = 1 / (window.innerHeight)
+    this.FXAAPass.renderToScreen = true
     this.composer.addPass(this.FXAAPass)
-
-    this.FilmPass = new ShaderPass(FilmShader)
-    this.FilmPass.renderToScreen = true
-    this.composer.addPass(this.FilmPass)
   }
 
   initRenderTargets () {
@@ -192,7 +196,7 @@ class FBOClass extends BaseClass {
   renderFrame (args) {
     this.frame++
 
-    this.FilmPass.uniforms[ 'time' ].value += args.dt * 0.1
+    // this.FilmPass.uniforms[ 'time' ].value += args.dt * 0.1
 
     // standard scene
     RendererClass.getInstance().renderer.setRenderTarget(this.RTGlobe)
