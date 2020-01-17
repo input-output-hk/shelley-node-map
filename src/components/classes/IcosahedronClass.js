@@ -30,7 +30,8 @@ class IcosahedronClass extends BaseClass {
     this.mesh2.scale.set(0.98, 0.98, 0.98)
     this.mesh2.material = new MeshBasicMaterial({
       color: new Color(0x000000),
-      side: BackSide
+      side: BackSide,
+      opacity: 0
     })
 
     super.init()

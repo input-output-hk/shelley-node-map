@@ -126,6 +126,16 @@ class Main extends mixin(EventEmitter, Component) {
     if (!isNaN(showAnnotations)) {
       this.config.scene.showAnnotations = !!showAnnotations
     }
+
+    const transparentBackground = parseInt(getUrlParameter('transparentBackground'))
+    if (!isNaN(transparentBackground)) {
+      this.config.post.transparentBackground = !!transparentBackground
+    }
+
+    const lowBandwidth = parseInt(getUrlParameter('lowBandwidth'))
+    if (!isNaN(lowBandwidth)) {
+      this.config.scene.lowBandwidth = !!lowBandwidth
+    }
   }
 
   initStage () {
@@ -143,7 +153,8 @@ class Main extends mixin(EventEmitter, Component) {
 
     FBOClass.getInstance().init({
       width: this.config.particleScene.width,
-      height: this.config.scene.height
+      height: this.config.scene.height,
+      transparentBackground: this.config.post.transparentBackground
     })
     ControlsClass.getInstance().init()
     MouseClass.getInstance().init()

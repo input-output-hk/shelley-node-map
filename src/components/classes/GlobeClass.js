@@ -10,10 +10,15 @@ import BaseClass from './BaseClass'
 
 // textures
 import map from '../../assets/globeBW.jpg'
+import mapE from '../../assets/globeBWe.jpg'
 
 class GlobeClass extends BaseClass {
   init () {
-    this.map = new TextureLoader().load(map)
+    if (this.config.scene.lowBandwidth) {
+      this.map = new TextureLoader().load(mapE)
+    } else {
+      this.map = new TextureLoader().load(map)
+    }
 
     this.geometry = new SphereBufferGeometry(this.config.scene.sphereRadius, 32, 32)
     this.material = new MeshBasicMaterial({

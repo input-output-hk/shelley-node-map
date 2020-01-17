@@ -46,7 +46,8 @@ import TouchClass from './TouchClass'
 class FBOClass extends BaseClass {
   init ({
     width,
-    height
+    height,
+    transparentBackground
   } = {}) {
     this.frame = 0
     this.width = width
@@ -70,7 +71,9 @@ class FBOClass extends BaseClass {
     this.BrightnessContrastPass = new ShaderPass(BrightnessContrastShader)
     this.composer.addPass(this.BrightnessContrastPass)
 
-    this.bloomPass = new UnrealBloomPass(new Vector2(this.width, this.height), 0.8, 2, 0.1) // 1.0, 9, 0.5, 512);
+    const alphaSum = transparentBackground ? 0.0 : 1.0
+
+    this.bloomPass = new UnrealBloomPass(new Vector2(this.width, this.height), 0.8, 2, 0.1, alphaSum) // 1.0, 9, 0.5, 512);
     this.composer.addPass(this.bloomPass)
 
     if (this.config.post.vignette) {
@@ -78,7 +81,7 @@ class FBOClass extends BaseClass {
       this.composer.addPass(this.VignettePass)
     }
 
-    if (this.config.post.blendLighten) {
+    if (this.config.post.blendLighten && !transparentBackground) {
       this.BlendPass = new ShaderPass(BlendShader)
       this.BlendPass.material.uniforms['blendColor'].value = this.config.post.blendColor
       this.composer.addPass(this.BlendPass)
@@ -200,7 +203,7 @@ class FBOClass extends BaseClass {
 
     // standard scene
     RendererClass.getInstance().renderer.setRenderTarget(this.RTGlobe)
-    RendererClass.getInstance().renderer.autoClear = false
+    // RendererClass.getInstance().renderer.autoClear = false
     RendererClass.getInstance().renderer.render(GlobeSceneClass.getInstance().scene, CameraClass.getInstance().camera)
 
     // particles scene

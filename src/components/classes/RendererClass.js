@@ -12,8 +12,11 @@ class RendererClass extends BaseClass {
     this.renderer = new WebGLRenderer({
       antialias: false,
       canvas: this.canvas,
-      powerPreference: 'high-performance'
+      powerPreference: 'high-performance',
+      alpha: true
     })
+
+    this.renderer.setClearColor(0xffffff, 0)
 
     super.init()
   }

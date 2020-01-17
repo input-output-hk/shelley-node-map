@@ -7,7 +7,7 @@ import BaseClass from './BaseClass'
 class GlobeClass extends BaseClass {
   init () {
     this.scene = new Scene()
-    this.scene.background = this.config.scene.bgColor
+    // this.scene.background = this.config.scene.bgColor
 
     super.init()
   }

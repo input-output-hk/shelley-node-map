@@ -7,7 +7,6 @@ import BaseClass from './BaseClass'
 class IcosaSceneClass extends BaseClass {
   init () {
     this.scene = new Scene()
-    this.scene.background = this.config.scene.bgColor
 
     super.init()
   }

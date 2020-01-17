@@ -237,6 +237,10 @@ Pass.FullScreenQuad = (function () {
 
   Object.assign(FullScreenQuad.prototype, {
 
+    dispose: function () {
+      this._mesh.geometry.dispose()
+    },
+
     render: function (renderer) {
       renderer.render(this._mesh, camera)
     }
@@ -519,11 +523,11 @@ const LuminosityHighPassShader = {
 
   uniforms: {
 
-    'tDiffuse': { type: 't', value: null },
-    'luminosityThreshold': { type: 'f', value: 1.0 },
-    'smoothWidth': { type: 'f', value: 1.0 },
-    'defaultColor': { type: 'c', value: new Color(0x000000) },
-    'defaultOpacity': { type: 'f', value: 0.0 }
+    'tDiffuse': { value: null },
+    'luminosityThreshold': { value: 1.0 },
+    'smoothWidth': { value: 1.0 },
+    'defaultColor': { value: new Color(0x000000) },
+    'defaultOpacity': { value: 0.0 }
 
   },
 
@@ -533,9 +537,9 @@ const LuminosityHighPassShader = {
 
     'void main() {',
 
-    'vUv = uv;',
+    '	vUv = uv;',
 
-    'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
+    '	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
 
     '}'
 
@@ -553,17 +557,17 @@ const LuminosityHighPassShader = {
 
     'void main() {',
 
-    'vec4 texel = texture2D( tDiffuse, vUv );',
+    '	vec4 texel = texture2D( tDiffuse, vUv );',
 
-    'vec3 luma = vec3( 0.299, 0.587, 0.114 );',
+    '	vec3 luma = vec3( 0.299, 0.587, 0.114 );',
 
-    'float v = dot( texel.xyz, luma );',
+    '	float v = dot( texel.xyz, luma );',
 
-    'vec4 outputColor = vec4( defaultColor.rgb, defaultOpacity );',
+    '	vec4 outputColor = vec4( defaultColor.rgb, defaultOpacity );',
 
-    'float alpha = smoothstep( luminosityThreshold, luminosityThreshold + smoothWidth, v );',
+    '	float alpha = smoothstep( luminosityThreshold, luminosityThreshold + smoothWidth, v );',
 
-    'gl_FragColor = mix( outputColor, texel, alpha );',
+    '	gl_FragColor = mix( outputColor, texel, alpha );',
 
     '}'
 
@@ -578,7 +582,7 @@ const LuminosityHighPassShader = {
  * https://docs.unrealengine.com/latest/INT/Engine/Rendering/PostProcessEffects/Bloom/
  */
 
-const UnrealBloomPass = function (resolution, strength, radius, threshold) {
+const UnrealBloomPass = function (resolution, strength, radius, threshold, alphaSum) {
   Pass.call(this)
 
   this.strength = (strength !== undefined) ? strength : 1
@@ -645,7 +649,7 @@ const UnrealBloomPass = function (resolution, strength, radius, threshold) {
   var resy = Math.round(this.resolution.y / 2)
 
   for (var i = 0; i < this.nMips; i++) {
-    this.separableBlurMaterials.push(this.getSeperableBlurMaterial(kernelSizeArray[ i ]))
+    this.separableBlurMaterials.push(this.getSeperableBlurMaterial(kernelSizeArray[ i ], alphaSum))
 
     this.separableBlurMaterials[ i ].uniforms[ 'texSize' ].value = new Vector2(resx, resy)
 
@@ -820,7 +824,7 @@ UnrealBloomPass.prototype = Object.assign(Object.create(Pass.prototype), {
     renderer.autoClear = oldAutoClear
   },
 
-  getSeperableBlurMaterial: function (kernelRadius) {
+  getSeperableBlurMaterial: function (kernelRadius, alphaSum) {
     return new ShaderMaterial({
 
       defines: {
@@ -831,7 +835,8 @@ UnrealBloomPass.prototype = Object.assign(Object.create(Pass.prototype), {
       uniforms: {
         'colorTexture': { value: null },
         'texSize': { value: new Vector2(0.5, 0.5) },
-        'direction': { value: new Vector2(0.5, 0.5) }
+        'direction': { value: new Vector2(0.5, 0.5) },
+        'alphaSum': { value: alphaSum }
       },
 
       vertexShader:
@@ -847,26 +852,29 @@ UnrealBloomPass.prototype = Object.assign(Object.create(Pass.prototype), {
 				uniform sampler2D colorTexture;\n\
 				uniform vec2 texSize;\
 				uniform vec2 direction;\
+				uniform float alphaSum;\
 				\
 				float gaussianPdf(in float x, in float sigma) {\
 					return 0.39894 * exp( -0.5 * x * x/( sigma * sigma))/sigma;\
 				}\
 				void main() {\n\
-					vec2 invSize = 1.0 / texSize;\
-					float fSigma = float(SIGMA);\
-					float weightSum = gaussianPdf(0.0, fSigma);\
-					vec3 diffuseSum = texture2D( colorTexture, vUv).rgb * weightSum;\
-					for( int i = 1; i < KERNEL_RADIUS; i ++ ) {\
-						float x = float(i);\
-						float w = gaussianPdf(x, fSigma);\
-						vec2 uvOffset = direction * invSize * x;\
-						vec3 sample1 = texture2D( colorTexture, vUv + uvOffset).rgb;\
-						vec3 sample2 = texture2D( colorTexture, vUv - uvOffset).rgb;\
-						diffuseSum += (sample1 + sample2) * w;\
-						weightSum += 2.0 * w;\
-					}\
-					gl_FragColor = vec4(diffuseSum/weightSum, 1.0);\n\
-				}'
+          vec2 invSize = 1.0 / texSize;\
+          float fSigma = float(SIGMA);\
+          float weightSum = gaussianPdf(0.0, fSigma);\
+          float alphaSum = alphaSum;\
+          vec3 diffuseSum = texture2D( colorTexture, vUv).rgb * weightSum;\
+          for( int i = 1; i < KERNEL_RADIUS; i ++ ) {\
+            float x = float(i);\
+            float w = gaussianPdf(x, fSigma);\
+            vec2 uvOffset = direction * invSize * x;\
+            vec4 sample1 = texture2D( colorTexture, vUv + uvOffset);\
+            vec4 sample2 = texture2D( colorTexture, vUv - uvOffset);\
+            diffuseSum += (sample1.rgb + sample2.rgb) * w;\
+            alphaSum += (sample1.a + sample2.a) * w;\
+            weightSum += 2.0 * w;\
+          }\
+          gl_FragColor = vec4(diffuseSum/weightSum, alphaSum/weightSum);\n\
+        }'
     })
   },
 

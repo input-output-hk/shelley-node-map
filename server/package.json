@@ -5,7 +5,8 @@
   "author": "Scott Darby <scott.darby@iohk.io>",
   "license": "ISC",
   "scripts": {
-    "server": "nodemon server.js"
+    "server": "nodemon server.js",
+    "sim": "nodemon sim.js"
   },
   "dependencies": {
     "express": "^4.16.2",

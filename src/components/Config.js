@@ -27,6 +27,7 @@ class Config {
         downScaleFactor: Detector.isMobile ? 0.4 : 0.5
       },
       scene: {
+        lowBandwidth: false,
         fullScreen: true,
         width: window.innerWidth,
         height: window.innerHeight,
@@ -43,6 +44,7 @@ class Config {
         enabled: false,
         vignette: true,
         blendLighten: true,
+        tranparentBackground: false,
         blendColor: new Color(0x000000) // 121326
       },
       camera: {
