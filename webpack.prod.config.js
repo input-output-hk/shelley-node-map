@@ -1,22 +1,22 @@
 const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   entry: {
-    index: path.join(__dirname, 'demo/src/index.js')
+    index: path.join(__dirname, './src/index.js')
   },
   output: {
-    path: path.join(__dirname, 'public/build'),
-    filename: '[name].bundle.js',
-    publicPath: '/'
+    path: path.join(__dirname, './build'),
+    filename: 'index.js',
+    library: 'Main',
+    libraryTarget: 'umd'
   },
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader'
+        test: /\.(js|jsx|mjs)$/,
+        loader: require.resolve('babel-loader'),
+        options: {
+          compact: false
         }
       },
       {
@@ -24,6 +24,12 @@ module.exports = {
         use: [
           require.resolve('raw-loader'),
           require.resolve('glslify-loader')
+        ]
+      },
+      {
+        test: /\.(glb)$/,
+        use: [
+          require.resolve('url-loader')
         ]
       },
       {
@@ -43,14 +49,10 @@ module.exports = {
       // A missing `test` is equivalent to a match.
       {
         test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/, /\.svg$/],
-        loader: require.resolve('file-loader')
-        // options: {
-        //   limit: 1000
-        // }
+        loader: require.resolve('url-loader')
       },
       {
-        test: /\.s?css$/,
-        // exclude: /node_modules/,
+        test: /\.css$/i,
         use: [
           {
             loader: 'style-loader'
@@ -68,11 +70,8 @@ module.exports = {
       }
     ]
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: './public/index.html'
-    })
-  ],
-  devtool: 'inline-source-map',
-  mode: 'development'
+  resolve: {
+    extensions: ['.js']
+  },
+  mode: 'production'
 }

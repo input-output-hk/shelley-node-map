@@ -18,7 +18,7 @@
   "scripts": {
     "build": "npm run build:js",
     "build:demo": "webpack --config webpack_demo.prod.config.js",
-    "build:js": "babel src --out-dir build --extensions \".js,.jsx\" --source-maps inline --copy-files",
+    "build:js": "webpack --config webpack.prod.config.js",
     "deploy:demo": "./scripts/deploy_demo.sh",
     "lint": "eslint src/**/*.js demo/src/**/*.js",
     "prepublish": "npm run build",

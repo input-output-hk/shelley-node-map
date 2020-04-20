@@ -68,7 +68,6 @@ yarn.lock
 .vscode
 
 # Build
-build
 .cache/
 
 # firebase auth
