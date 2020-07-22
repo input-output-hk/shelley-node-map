@@ -11,7 +11,7 @@ uniform float uTime;
 uniform float uAspect;
 uniform vec3 uCamPos;
 
-attribute vec3 offset;
+attribute vec2 offset;
 attribute vec3 tPosition;
 
 varying vec2 vUv;

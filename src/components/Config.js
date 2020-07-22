@@ -22,8 +22,8 @@ class Config {
       curveMaxAltitude: 1.8,
       curveSegments: 32,
       particleScene: {
-        width: 2000,
-        height: 2000,
+        width: 2100,
+        height: 2100,
         downScaleFactor: Detector.isMobile ? 0.4 : 0.5
       },
       scene: {

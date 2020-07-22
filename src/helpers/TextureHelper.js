@@ -11,19 +11,19 @@ export default class TextureHelper {
     this.config = args.config
   }
 
-  setNodeCount (nodeCount) {
-    this.nodeCount = nodeCount
+  setPointCount (pointCount) {
+    this.pointCount = pointCount
   }
 
-  setTextureSize (nodeCount) {
-    this.setNodeCount(nodeCount)
+  setTextureSize (pointCount) {
+    this.setPointCount(pointCount)
 
     let width = 1
     let height = 1
 
-    while (height * width < this.nodeCount) {
+    while (height * width < this.pointCount) {
       width *= 2
-      if (height * width >= this.nodeCount) {
+      if (height * width >= this.pointCount) {
         break
       }
       height *= 2
@@ -46,12 +46,12 @@ export default class TextureHelper {
     let initialTextureArray = new Float32Array(this.textureWidth * this.textureHeight * 4)
     let textureArray = new Float32Array(this.textureWidth * this.textureHeight * 4)
     let lifeArray = []
-    let step = 6
+    let step = 4
 
-    for (let i = 0; i < this.nodeCount; i++) {
+    for (let i = 0; i < this.pointCount; i++) {
       let location = new Vector3(
-        ((i * step) % this.config.particleScene.width),
-        (Math.floor((i * step) / this.config.particleScene.width)),
+        ((i) % (this.config.particleScene.width / step)) * step,
+        (Math.floor((i) / (this.config.particleScene.width / step))) * step,
         0
       )
 

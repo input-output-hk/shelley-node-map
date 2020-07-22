@@ -38,9 +38,9 @@ class ParticlesClass extends BaseClass {
   init (numPoints) {
     this.mouseMoved = 1
     this.frame = 0
-    let step = 6
+    let step = 4
 
-    this.particleCount = Math.round(numPoints / step)
+    this.particleCount = Math.round(numPoints / (step * step))
 
     this.textureHelper = new TextureHelper({
       config: this.config
@@ -61,15 +61,14 @@ class ParticlesClass extends BaseClass {
     this.geometry.setAttribute('uv', refGeo.attributes.uv)
     this.geometry.setIndex(refGeo.index)
 
-    this.offsets = new Float32Array(this.particleCount * 3)
+    this.offsets = new Float32Array(this.particleCount * 2)
 
-    for (let i = 0; i < numPoints; i++) {
-      this.offsets[i * 3 + 0] = (i * step) % this.config.particleScene.width
-      this.offsets[i * 3 + 1] = Math.floor((i * step) / this.config.particleScene.width)
-      this.offsets[i * 3 + 2] = 0
+    for (let i = 0; i < this.particleCount; i++) {
+      this.offsets[i * 2 + 0] = (i % (this.config.particleScene.width / step)) * step
+      this.offsets[i * 2 + 1] = Math.floor(i / (this.config.particleScene.width / step)) * step
     }
 
-    this.geometry.setAttribute('offset', new InstancedBufferAttribute(this.offsets, 3, false))
+    this.geometry.setAttribute('offset', new InstancedBufferAttribute(this.offsets, 2, false))
 
     const positionArray = new Float32Array(this.particleCount * 3)
 
