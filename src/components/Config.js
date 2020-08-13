@@ -58,7 +58,7 @@ class Config {
         debugPicker: false
       },
       fireBase: {
-        collection: 'shelley-node-log',
+        collection: 'shelley-node-log-ITN',
         apiKey: 'AIzaSyCwfdzrjQ5GRqyz-napBM29T7Zel_6KIUY',
         authDomain: 'webgl-gource-1da99.firebaseapp.com',
         databaseURL: 'https://webgl-gource-1da99.firebaseio.com',

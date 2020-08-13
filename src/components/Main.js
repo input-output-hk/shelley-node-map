@@ -299,6 +299,10 @@ class Main extends mixin(EventEmitter, Component) {
   }
 
   showGeoData (data) {
+    if (typeof data === 'undefined') {
+      return
+    }
+
     if (data.city === null && data.country === null) {
       data.country = 'Unknown'
     }
