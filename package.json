@@ -64,7 +64,7 @@
     "jest": "^24.8.0",
     "jest-styled-components": "^6.3.3",
     "markdown-loader": "^5.0.0",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
